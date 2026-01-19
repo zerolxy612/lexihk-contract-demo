@@ -69,3 +69,4 @@ pub struct AssetUsed {
     pub node: Pubkey,
     pub usage_count: u64,
 }
+

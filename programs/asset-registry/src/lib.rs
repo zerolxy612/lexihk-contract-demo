@@ -28,3 +28,4 @@ pub mod asset_registry {
         instructions::record_usage::handler(ctx)
     }
 }
+

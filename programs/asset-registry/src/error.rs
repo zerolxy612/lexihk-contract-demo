@@ -20,3 +20,4 @@ pub enum AssetError {
     #[msg("Invalid asset type")]
     InvalidAssetType,
 }
+

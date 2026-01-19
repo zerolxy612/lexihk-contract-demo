@@ -36,3 +36,4 @@ pub mod drama_token {
         instructions::burn_spend::handler(ctx, amount, spend_type)
     }
 }
+

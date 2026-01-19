@@ -11,6 +11,8 @@ import { CountUp } from "../components/CountUp";
 export default function WhitepaperPage() {
   const { language } = useLanguage();
   const content = getWhitepaperContent(language);
+  
+  console.log('Whitepaper page loaded', { language, content });
 
   return (
     <div className="relative overflow-hidden min-h-screen">
@@ -383,6 +385,7 @@ export default function WhitepaperPage() {
     </div>
   );
 }
+
 
 
 

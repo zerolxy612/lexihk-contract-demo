@@ -102,3 +102,4 @@ pub struct TokenInitialized {
     pub name: String,
     pub symbol: String,
 }
+
