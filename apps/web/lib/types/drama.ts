@@ -255,3 +255,6 @@ export interface AssetRegisteredEvent {
 
 
 
+
+
+

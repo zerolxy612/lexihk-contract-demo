@@ -136,7 +136,7 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap gap-3">
               <MagneticElement strength={0.2}>
-                <Link href="/theater">
+                <Link href="/dramas">
                   <button className="relative px-5 py-3 rounded-full bg-gradient-to-r from-accent via-red-500 to-white text-white font-semibold shadow-[0_20px_60px_rgba(229,9,20,0.4)] hover:scale-[1.05] transition overflow-hidden glow-pulse">
                     <span className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.3),transparent_35%)] opacity-60" />
                     <span className="relative shimmer-text">{content.hero.cta.play}</span>
@@ -144,7 +144,7 @@ export default function Home() {
                 </Link>
               </MagneticElement>
               <MagneticElement strength={0.15}>
-                <Link 
+                <Link
                   href="/whitepaper"
                   className="px-5 py-3 rounded-full border border-white/20 text-white/80 hover:border-accent hover:text-white hover:-translate-y-0.5 transition flowing-border inline-block"
                 >
@@ -298,41 +298,45 @@ export default function Home() {
                   {content.chapters.title}
                 </h2>
               </div>
-              <button className="px-4 py-2 rounded-full border border-white/20 text-white/80 hover:border-accent hover:text-white hover:shadow-[0_0_20px_rgba(229,9,20,0.3)] transition-all duration-300">
-                {content.chapters.browseAll}
-              </button>
+              <Link href="/dramas">
+                <button className="px-4 py-2 rounded-full border border-white/20 text-white/80 hover:border-accent hover:text-white hover:shadow-[0_0_20px_rgba(229,9,20,0.3)] transition-all duration-300">
+                  {content.chapters.browseAll}
+                </button>
+              </Link>
             </div>
             <FilmReelContainer startDelay={200} itemDelay={150}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {chapters.map((chapter, index) => (
                   <FilmReel key={chapter.id} delay={index * 150} index={index}>
-                    <TiltCard
-                      tiltMaxAngle={12}
-                      glareEnable={true}
-                      className="relative rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#0f1116] to-[#0a0c12] hover:border-accent/50 hover:shadow-[0_20px_60px_rgba(229,9,20,0.3)] transition-all duration-500 card-shine group cursor-pointer flowing-border"
-                    >
-                      <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,rgba(229,9,20,0.35),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.12),transparent_30%)]" />
-                      <div className="relative aspect-[3/4]">
-                        <Image
-                          src={chapter.image}
-                          alt={chapter.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-700"
-                          sizes="(max-width: 768px) 50vw, 240px"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/10 to-black/70" />
-                        <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] uppercase tracking-[0.2em] bg-black/60 text-white/80 border border-white/10 backdrop-blur-sm">
-                          {chapter.tag}
-                        </span>
-                        <span className="absolute bottom-2 left-2 text-5xl font-display text-white drop-shadow-[0_10px_24px_rgba(229,9,20,0.45)] group-hover:text-accent transition-colors duration-300 shimmer-text">
-                          {chapter.id}
-                        </span>
-                      </div>
-                      <div className="relative p-4 space-y-1">
-                        <p className="font-semibold text-white group-hover:text-accent transition-colors duration-300">{chapter.title}</p>
-                        <p className="text-white/60 text-sm">Agent-rendered · 铸造即刻开放</p>
-                      </div>
-                    </TiltCard>
+                    <Link href="/dramas">
+                      <TiltCard
+                        tiltMaxAngle={12}
+                        glareEnable={true}
+                        className="relative rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#0f1116] to-[#0a0c12] hover:border-accent/50 hover:shadow-[0_20px_60px_rgba(229,9,20,0.3)] transition-all duration-500 card-shine group cursor-pointer flowing-border"
+                      >
+                        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,rgba(229,9,20,0.35),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.12),transparent_30%)]" />
+                        <div className="relative aspect-[3/4]">
+                          <Image
+                            src={chapter.image}
+                            alt={chapter.title}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-700"
+                            sizes="(max-width: 768px) 50vw, 240px"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/10 to-black/70" />
+                          <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] uppercase tracking-[0.2em] bg-black/60 text-white/80 border border-white/10 backdrop-blur-sm">
+                            {chapter.tag}
+                          </span>
+                          <span className="absolute bottom-2 left-2 text-5xl font-display text-white drop-shadow-[0_10px_24px_rgba(229,9,20,0.45)] group-hover:text-accent transition-colors duration-300 shimmer-text">
+                            {chapter.id}
+                          </span>
+                        </div>
+                        <div className="relative p-4 space-y-1">
+                          <p className="font-semibold text-white group-hover:text-accent transition-colors duration-300">{chapter.title}</p>
+                          <p className="text-white/60 text-sm">Agent-rendered · Live Now</p>
+                        </div>
+                      </TiltCard>
+                    </Link>
                   </FilmReel>
                 ))}
               </div>
@@ -402,6 +406,158 @@ export default function Home() {
                   {content.launchpad.cta.mint}
                 </button>
               </div>
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Testimonials Section */}
+        <ScrollReveal>
+          <section className="space-y-6">
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-2">{content.testimonials.tag}</p>
+              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white">
+                {content.testimonials.title}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {content.testimonials.items.map((testimonial, index) => (
+                <ScrollReveal key={testimonial.author} delay={index * 100}>
+                  <div className="glass rounded-2xl p-6 border border-white/10 hover:border-accent/50 transition-all duration-500 space-y-4 group">
+                    <p className="text-white/80 leading-relaxed italic">"{testimonial.quote}"</p>
+                    <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+                      <img
+                        src={testimonial.avatar}
+                        alt={testimonial.author}
+                        className="w-12 h-12 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-accent/50 transition"
+                      />
+                      <div>
+                        <p className="text-white font-semibold">{testimonial.author}</p>
+                        <p className="text-white/50 text-sm">{testimonial.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Partners Section */}
+        <ScrollReveal>
+          <section className="glass rounded-3xl p-8 sm:p-12 border border-white/10 text-center space-y-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-2">{content.partners.tag}</p>
+              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white mb-3">
+                {content.partners.title}
+              </h2>
+              <p className="text-white/60">{content.partners.subtitle}</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4">
+              {['Solana', 'Ethereum', 'Polygon', 'Arweave', 'Chainlink', 'The Graph', 'IPFS', 'OpenAI'].map((partner) => (
+                <div
+                  key={partner}
+                  className="h-20 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-accent/50 transition-all duration-300 font-semibold"
+                >
+                  {partner}
+                </div>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Roadmap Section */}
+        <ScrollReveal>
+          <section className="space-y-6">
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-2">{content.roadmap.tag}</p>
+              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white">
+                {content.roadmap.title}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {content.roadmap.phases.map((phase, index) => (
+                <ScrollReveal key={phase.quarter} delay={index * 100}>
+                  <div className={`glass rounded-2xl p-6 border transition-all duration-500 ${
+                    phase.status === 'Completed' || phase.status === '已完成'
+                      ? 'border-green-500/50 bg-green-500/5'
+                      : phase.status === 'In Progress' || phase.status === '进行中' || phase.status === '進行中'
+                      ? 'border-accent/50 bg-accent/5'
+                      : 'border-white/10'
+                  }`}>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-accent text-sm font-semibold">{phase.quarter}</p>
+                        <h3 className="text-white text-lg font-bold mt-1">{phase.title}</h3>
+                      </div>
+                      <ul className="space-y-2">
+                        {phase.items.map((item) => (
+                          <li key={item} className="flex items-start gap-2 text-white/70 text-sm">
+                            <span className="text-accent mt-1">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                        phase.status === 'Completed' || phase.status === '已完成'
+                          ? 'bg-green-500/20 text-green-400'
+                          : phase.status === 'In Progress' || phase.status === '进行中' || phase.status === '進行中'
+                          ? 'bg-accent/20 text-accent'
+                          : 'bg-white/10 text-white/60'
+                      }`}>
+                        {phase.status}
+                      </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* FAQ Section */}
+        <ScrollReveal>
+          <section className="glass rounded-3xl p-6 sm:p-8 border border-white/10 space-y-6">
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-2">{content.faq.tag}</p>
+              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white">
+                {content.faq.title}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {content.faq.items.map((item, index) => (
+                <div key={item.question} className="space-y-2">
+                  <h3 className="text-white font-semibold flex items-start gap-2">
+                    <span className="text-accent">Q:</span>
+                    <span>{item.question}</span>
+                  </h3>
+                  <p className="text-white/70 leading-relaxed pl-6">{item.answer}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Final CTA Section */}
+        <ScrollReveal>
+          <section className="relative overflow-hidden rounded-3xl p-12 sm:p-16 text-center bg-gradient-to-b from-accent/20 via-red-600/10 to-[#0a0b10] border border-accent/30">
+            <div className="scan-line absolute inset-0 opacity-20" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(229,9,20,0.3),transparent_70%)]" />
+            <div className="relative z-10 space-y-6">
+              <p className="text-xs uppercase tracking-[0.3em] text-accent">{content.cta.tag}</p>
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-white">
+                {content.cta.title}
+              </h2>
+              <p className="text-white/70 text-lg max-w-2xl mx-auto">
+                {content.cta.subtitle}
+              </p>
+              <MagneticElement strength={0.2}>
+                <Link href="/dramas">
+                  <button className="relative px-8 py-4 rounded-full bg-gradient-to-r from-accent via-red-500 to-white text-white font-bold text-lg shadow-[0_20px_60px_rgba(229,9,20,0.5)] hover:scale-[1.05] transition overflow-hidden glow-pulse">
+                    <span className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.3),transparent_35%)] opacity-60" />
+                    <span className="relative shimmer-text">{content.cta.button}</span>
+                  </button>
+                </Link>
+              </MagneticElement>
             </div>
           </section>
         </ScrollReveal>

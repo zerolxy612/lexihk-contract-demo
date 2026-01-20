@@ -122,6 +122,45 @@ export interface LandingContent {
       mint: string;
     };
   };
+  testimonials: {
+    tag: string;
+    title: string;
+    items: Array<{
+      quote: string;
+      author: string;
+      role: string;
+      avatar: string;
+    }>;
+  };
+  partners: {
+    tag: string;
+    title: string;
+    subtitle: string;
+  };
+  roadmap: {
+    tag: string;
+    title: string;
+    phases: Array<{
+      quarter: string;
+      title: string;
+      items: string[];
+      status: string;
+    }>;
+  };
+  faq: {
+    tag: string;
+    title: string;
+    items: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
+  cta: {
+    tag: string;
+    title: string;
+    subtitle: string;
+    button: string;
+  };
 }
 
 export const landingContent: Record<Language, LandingContent> = {
@@ -262,6 +301,121 @@ export const landingContent: Record<Language, LandingContent> = {
         mint: 'Start Minting',
       },
     },
+    testimonials: {
+      tag: 'Community',
+      title: 'Loved by Creators & Viewers',
+      items: [
+        {
+          quote: 'The first platform where my audience actually earns from watching. Revenue sharing changed everything.',
+          author: 'Sarah Chen',
+          role: 'Interactive Drama Creator',
+          avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+        },
+        {
+          quote: 'I earned 0.3 ETH just by watching and voting on story branches. This is the future of entertainment.',
+          author: 'Alex Rivera',
+          role: 'Early Collector',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+        },
+        {
+          quote: 'AI agents creating content 24/7 while I sleep. The agent economy is real and it\'s happening now.',
+          author: 'Yuki Tanaka',
+          role: 'Agent Node Operator',
+          avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+        },
+      ],
+    },
+    partners: {
+      tag: 'Ecosystem',
+      title: 'Powered by Leading Web3 Infrastructure',
+      subtitle: 'Built on battle-tested protocols and supported by top-tier partners',
+    },
+    roadmap: {
+      tag: 'Roadmap',
+      title: 'Building the Future of Interactive Entertainment',
+      phases: [
+        {
+          quarter: 'Q1 2024',
+          title: 'Foundation',
+          items: [
+            'x402 Protocol Launch',
+            'First Interactive Drama Series',
+            'Agent Network Beta',
+            'Revenue Sharing v1',
+          ],
+          status: 'Completed',
+        },
+        {
+          quarter: 'Q2 2024',
+          title: 'Expansion',
+          items: [
+            'Mobile App Launch',
+            'Creator Launchpad',
+            'Advanced Agent Collaboration',
+            'Cross-chain Support',
+          ],
+          status: 'In Progress',
+        },
+        {
+          quarter: 'Q3 2024',
+          title: 'Scale',
+          items: [
+            'UBI Distribution System',
+            'Marketplace for Episodes',
+            'AI Model Marketplace',
+            'DAO Governance',
+          ],
+          status: 'Planned',
+        },
+        {
+          quarter: 'Q4 2024',
+          title: 'Ecosystem',
+          items: [
+            'Third-party Creator Tools',
+            'Agent SDK Release',
+            'Global Expansion',
+            'Enterprise Partnerships',
+          ],
+          status: 'Planned',
+        },
+      ],
+    },
+    faq: {
+      tag: 'FAQ',
+      title: 'Frequently Asked Questions',
+      items: [
+        {
+          question: 'What is x402 Protocol?',
+          answer: 'x402 is an autonomous agent economy protocol that enables AI agents to collaborate on content creation while distributing revenue transparently to all participants—including viewers.',
+        },
+        {
+          question: 'How do I earn UBI as a viewer?',
+          answer: 'Simply watch interactive dramas, vote on story branches, and engage with content. Your wallet automatically receives revenue shares based on your participation.',
+        },
+        {
+          question: 'Do I need cryptocurrency to start?',
+          answer: 'No! You can start watching for free. We provide gasless transactions and airdrops for new users. You only need a wallet to receive earnings.',
+        },
+        {
+          question: 'What makes this different from traditional streaming?',
+          answer: 'Unlike traditional platforms where only creators earn, x402 distributes revenue to viewers, AI agents, and creators. Plus, you control the story through interactive choices.',
+        },
+        {
+          question: 'Can I create my own interactive drama?',
+          answer: 'Yes! Our Creator Launchpad lets anyone upload or AI-generate storyboards, set revenue splits, and launch their own interactive series.',
+        },
+        {
+          question: 'What blockchain does x402 use?',
+          answer: 'We support multiple chains including Ethereum L2s, Solana, and other EVM-compatible networks for maximum accessibility and low fees.',
+        },
+      ],
+    },
+    cta: {
+      tag: 'Get Started',
+      title: 'Ready to Experience the Future?',
+      subtitle: 'Join thousands of viewers earning while watching. No credit card required.',
+      button: 'Launch App Now',
+    },
   },
   'zh-CN': {
     header: {
@@ -400,6 +554,121 @@ export const landingContent: Record<Language, LandingContent> = {
         mint: '开始铸造',
       },
     },
+    testimonials: {
+      tag: '社区',
+      title: '深受创作者与观众喜爱',
+      items: [
+        {
+          quote: '第一个让我的观众真正从观看中获益的平台。收益分享改变了一切。',
+          author: 'Sarah Chen',
+          role: '互动剧创作者',
+          avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+        },
+        {
+          quote: '仅通过观看和投票故事分支就赚了 0.3 ETH。这就是娱乐的未来。',
+          author: 'Alex Rivera',
+          role: '早期收藏者',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+        },
+        {
+          quote: 'AI agents 24/7 创作内容，我睡觉时也在赚钱。Agent 经济体是真实存在的。',
+          author: 'Yuki Tanaka',
+          role: 'Agent 节点运营者',
+          avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+        },
+      ],
+    },
+    partners: {
+      tag: '生态',
+      title: '由领先的 Web3 基础设施驱动',
+      subtitle: '基于久经考验的协议构建，获得顶级合作伙伴支持',
+    },
+    roadmap: {
+      tag: '路线图',
+      title: '构建互动娱乐的未来',
+      phases: [
+        {
+          quarter: '2024 Q1',
+          title: '基础建设',
+          items: [
+            'x402 协议上线',
+            '首个互动剧系列',
+            'Agent 网络测试版',
+            '收益分享 v1',
+          ],
+          status: '已完成',
+        },
+        {
+          quarter: '2024 Q2',
+          title: '扩展',
+          items: [
+            '移动端应用上线',
+            '创作者发射台',
+            '高级 Agent 协作',
+            '跨链支持',
+          ],
+          status: '进行中',
+        },
+        {
+          quarter: '2024 Q3',
+          title: '规模化',
+          items: [
+            'UBI 分发系统',
+            '剧集交易市场',
+            'AI 模型市场',
+            'DAO 治理',
+          ],
+          status: '计划中',
+        },
+        {
+          quarter: '2024 Q4',
+          title: '生态系统',
+          items: [
+            '第三方创作工具',
+            'Agent SDK 发布',
+            '全球扩张',
+            '企业合作',
+          ],
+          status: '计划中',
+        },
+      ],
+    },
+    faq: {
+      tag: '常见问题',
+      title: '常见问题解答',
+      items: [
+        {
+          question: '什么是 x402 协议？',
+          answer: 'x402 是一个自主运转的 agent 经济体协议，使 AI agents 能够协作创作内容，同时将收益透明地分配给所有参与者——包括观众。',
+        },
+        {
+          question: '作为观众如何获得 UBI？',
+          answer: '只需观看互动剧、投票选择故事分支并参与互动。你的钱包会根据参与度自动收到收益分成。',
+        },
+        {
+          question: '开始使用需要加密货币吗？',
+          answer: '不需要！你可以免费开始观看。我们为新用户提供无 Gas 交易和空投。你只需要一个钱包来接收收益。',
+        },
+        {
+          question: '这与传统流媒体有什么不同？',
+          answer: '与只有创作者赚钱的传统平台不同，x402 将收益分配给观众、AI agents 和创作者。此外，你可以通过互动选择来控制故事走向。',
+        },
+        {
+          question: '我可以创建自己的互动剧吗？',
+          answer: '可以！我们的创作者发射台让任何人都能上传或 AI 生成分镜，设置收益分成，并推出自己的互动系列。',
+        },
+        {
+          question: 'x402 使用什么区块链？',
+          answer: '我们支持多条链，包括以太坊 L2、Solana 和其他 EVM 兼容网络，以实现最大的可访问性和低费用。',
+        },
+      ],
+    },
+    cta: {
+      tag: '立即开始',
+      title: '准备好体验未来了吗？',
+      subtitle: '加入数千名边看边赚的观众。无需信用卡。',
+      button: '立即启动应用',
+    },
   },
   'zh-TW': {
     header: {
@@ -537,6 +806,121 @@ export const landingContent: Record<Language, LandingContent> = {
         connect: '連接錢包',
         mint: '開始鑄造',
       },
+    },
+    testimonials: {
+      tag: '社群',
+      title: '深受創作者與觀眾喜愛',
+      items: [
+        {
+          quote: '第一個讓我的觀眾真正從觀看中獲益的平台。收益分享改變了一切。',
+          author: 'Sarah Chen',
+          role: '互動劇創作者',
+          avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+        },
+        {
+          quote: '僅通過觀看和投票故事分支就賺了 0.3 ETH。這就是娛樂的未來。',
+          author: 'Alex Rivera',
+          role: '早期收藏者',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+        },
+        {
+          quote: 'AI agents 24/7 創作內容，我睡覺時也在賺錢。Agent 經濟體是真實存在的。',
+          author: 'Yuki Tanaka',
+          role: 'Agent 節點運營者',
+          avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+        },
+      ],
+    },
+    partners: {
+      tag: '生態',
+      title: '由領先的 Web3 基礎設施驅動',
+      subtitle: '基於久經考驗的協議構建，獲得頂級合作夥伴支持',
+    },
+    roadmap: {
+      tag: '路線圖',
+      title: '構建互動娛樂的未來',
+      phases: [
+        {
+          quarter: '2024 Q1',
+          title: '基礎建設',
+          items: [
+            'x402 協議上線',
+            '首個互動劇系列',
+            'Agent 網絡測試版',
+            '收益分享 v1',
+          ],
+          status: '已完成',
+        },
+        {
+          quarter: '2024 Q2',
+          title: '擴展',
+          items: [
+            '移動端應用上線',
+            '創作者發射台',
+            '高級 Agent 協作',
+            '跨鏈支持',
+          ],
+          status: '進行中',
+        },
+        {
+          quarter: '2024 Q3',
+          title: '規模化',
+          items: [
+            'UBI 分發系統',
+            '劇集交易市場',
+            'AI 模型市場',
+            'DAO 治理',
+          ],
+          status: '計劃中',
+        },
+        {
+          quarter: '2024 Q4',
+          title: '生態系統',
+          items: [
+            '第三方創作工具',
+            'Agent SDK 發布',
+            '全球擴張',
+            '企業合作',
+          ],
+          status: '計劃中',
+        },
+      ],
+    },
+    faq: {
+      tag: '常見問題',
+      title: '常見問題解答',
+      items: [
+        {
+          question: '什麼是 x402 協議？',
+          answer: 'x402 是一個自主運轉的 agent 經濟體協議，使 AI agents 能夠協作創作內容，同時將收益透明地分配給所有參與者——包括觀眾。',
+        },
+        {
+          question: '作為觀眾如何獲得 UBI？',
+          answer: '只需觀看互動劇、投票選擇故事分支並參與互動。你的錢包會根據參與度自動收到收益分成。',
+        },
+        {
+          question: '開始使用需要加密貨幣嗎？',
+          answer: '不需要！你可以免費開始觀看。我們為新用戶提供無 Gas 交易和空投。你只需要一個錢包來接收收益。',
+        },
+        {
+          question: '這與傳統流媒體有什麼不同？',
+          answer: '與只有創作者賺錢的傳統平台不同，x402 將收益分配給觀眾、AI agents 和創作者。此外，你可以通過互動選擇來控制故事走向。',
+        },
+        {
+          question: '我可以創建自己的互動劇嗎？',
+          answer: '可以！我們的創作者發射台讓任何人都能上傳或 AI 生成分鏡，設置收益分成，並推出自己的互動系列。',
+        },
+        {
+          question: 'x402 使用什麼區塊鏈？',
+          answer: '我們支持多條鏈，包括以太坊 L2、Solana 和其他 EVM 兼容網絡，以實現最大的可訪問性和低費用。',
+        },
+      ],
+    },
+    cta: {
+      tag: '立即開始',
+      title: '準備好體驗未來了嗎？',
+      subtitle: '加入數千名邊看邊賺的觀眾。無需信用卡。',
+      button: '立即啟動應用',
     },
   },
 };
