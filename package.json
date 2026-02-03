@@ -2,9 +2,6 @@
   "name": "drama",
   "private": true,
   "packageManager": "pnpm@8.15.4",
-  "workspaces": [
-    "apps/web"
-  ],
   "scripts": {
     "dev": "pnpm --filter drama-web dev",
     "build": "pnpm --filter drama-web build",

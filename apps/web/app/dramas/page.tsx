@@ -1,43 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ParticleBackground } from '@/app/components/ParticleBackground';
 import { ScrollReveal } from '@/app/components/ScrollReveal';
 import { MagneticElement } from '@/app/components/MagneticElement';
 import { CountUp } from '@/app/components/CountUp';
+import { BondingCurveChart } from '@/app/components/BondingCurveChart';
 import { INITIAL_DRAMAS, Drama, Trade } from '@/app/data/mocks';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { getDramasContent } from '@/lib/i18n/dramas';
 
 // Re-export for other components that import from here
 export { INITIAL_DRAMAS };
 
-const CATEGORIES = [
-  { id: 'all', label: '全部', icon: '🎬' },
-  { id: 'meme', label: 'Meme', icon: '🐸' },
-  { id: 'scifi', label: '科幻', icon: '🤖' },
-  { id: 'suspense', label: '悬疑', icon: '🕵️' },
-  { id: 'adventure', label: '冒险', icon: '🏺' },
-  { id: 'history', label: '历史', icon: '📜' },
-  { id: 'documentary', label: '纪录', icon: '📹' },
-];
-
 type SortType = 'hot' | 'new' | 'marketcap' | 'progress';
-
-// AI 状态映射
-const AI_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  idle: { label: '待机中', color: 'text-white/50' },
-  scripting: { label: '剧本生成中', color: 'text-blue-400' },
-  casting: { label: '角色选角中', color: 'text-purple-400' },
-  filming: { label: '分镜渲染中', color: 'text-amber-400' },
-  editing: { label: '后期剪辑中', color: 'text-green-400' },
-};
-
-// 风险等级映射
-const RISK_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  low: { label: '低风险', color: 'text-emerald-400', bg: 'bg-emerald-500/20 border-emerald-500/30' },
-  medium: { label: '中风险', color: 'text-amber-400', bg: 'bg-amber-500/20 border-amber-500/30' },
-  high: { label: '高风险', color: 'text-red-400', bg: 'bg-red-500/20 border-red-500/30' },
-};
 
 // 格式化数字
 function formatNumber(num: number): string {
@@ -46,12 +23,326 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
+// 格式化时间
+function formatTimeAgo(timestamp: number, agoText: string): string {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return `${seconds}s ${agoText}`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ${agoText}`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${agoText}`;
+}
+
+// 交易模态框组件
+function TradeModal({ 
+  drama, 
+  onClose,
+  content,
+}: { 
+  drama: Drama; 
+  onClose: () => void;
+  content: ReturnType<typeof getDramasContent>;
+}) {
+  const [mode, setMode] = useState<'buy' | 'sell'>('buy');
+  const [amount, setAmount] = useState('');
+  const [recentTrades, setRecentTrades] = useState<Trade[]>(drama.recentTrades || []);
+
+  const ethPrice = amount ? Number(amount) : 0;
+  const tokenAmount = ethPrice / drama.currentPrice;
+  
+  // 模拟实时交易
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.6) {
+        const newTrade: Trade = {
+          id: Math.random().toString(36).substr(2, 9),
+          type: Math.random() > 0.4 ? 'buy' : 'sell',
+          amount: parseFloat((Math.random() * 0.5 + 0.01).toFixed(3)),
+          price: drama.currentPrice,
+          trader: `0x${Math.random().toString(16).substr(2, 4)}...${Math.random().toString(16).substr(2, 4)}`,
+          timestamp: Date.now()
+        };
+        setRecentTrades(prev => [newTrade, ...prev].slice(0, 20));
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [drama.currentPrice]);
+
+  const riskColor = {
+    low: 'text-emerald-400 bg-emerald-500/20',
+    medium: 'text-amber-400 bg-amber-500/20',
+    high: 'text-red-400 bg-red-500/20',
+  }[drama.rugRisk];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* 背景遮罩 */}
+      <div 
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        onClick={onClose}
+      />
+      
+      {/* 模态框内容 */}
+      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl border border-white/10 bg-[#0a0b10] shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+        {/* 关闭按钮 */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white transition flex items-center justify-center"
+        >
+          ✕
+        </button>
+
+        <div className="flex flex-col lg:flex-row h-full max-h-[90vh]">
+          {/* 左侧 - 信息区 */}
+          <div className="flex-1 p-6 lg:p-8 overflow-y-auto border-b lg:border-b-0 lg:border-r border-white/10">
+            {/* 头部信息 */}
+            <div className="flex items-start gap-4 mb-6">
+              <div className="h-16 w-16 rounded-2xl overflow-hidden flex-shrink-0">
+                <img src={drama.coverImage} alt="" className="h-full w-full object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded bg-gradient-to-r from-rose-500/20 to-fuchsia-500/20 border border-rose-500/30 text-rose-400 text-xs font-bold font-mono">
+                    ${drama.ticker}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${riskColor}`}>
+                    {content.risk[drama.rugRisk as keyof typeof content.risk]}
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-white truncate">{drama.title}</h2>
+                <p className="text-white/50 text-sm mt-1 line-clamp-2">{drama.description}</p>
+              </div>
+            </div>
+
+            {/* 统计数据 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="p-3 rounded-xl bg-white/5 border border-white/[0.06] text-center">
+                <div className="text-lg font-bold font-mono text-emerald-400">{drama.marketCap.toFixed(2)}E</div>
+                <div className="text-[10px] text-white/40 uppercase">{content.kingOfHill.marketCap}</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white/5 border border-white/[0.06] text-center">
+                <div className="text-lg font-bold font-mono text-white">${(drama.currentPrice * 2420).toFixed(4)}</div>
+                <div className="text-[10px] text-white/40 uppercase">{content.card.price}</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white/5 border border-white/[0.06] text-center">
+                <div className="text-lg font-bold font-mono text-white">{formatNumber(drama.holders)}</div>
+                <div className="text-[10px] text-white/40 uppercase">{content.card.holders}</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white/5 border border-white/[0.06] text-center">
+                <div className="text-lg font-bold font-mono text-rose-400">{drama.devHolding}%</div>
+                <div className="text-[10px] text-white/40 uppercase">{content.modal.devHolding}</div>
+              </div>
+            </div>
+
+            {/* Bonding Curve */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm font-medium text-white/70">{content.modal.bondingProgress}</span>
+                <span className="text-sm font-mono font-bold text-rose-400">{drama.bondingCurveProgress.toFixed(1)}%</span>
+              </div>
+              <BondingCurveChart progress={drama.bondingCurveProgress} className="h-[180px] !bg-black/30 !rounded-xl" />
+            </div>
+
+            {/* 最近交易 */}
+            <div>
+              <h3 className="text-sm font-medium text-white/70 mb-3">{content.modal.recentTrades}</h3>
+              <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                {recentTrades.length > 0 ? (
+                  recentTrades.slice(0, 10).map((trade) => (
+                    <div key={trade.id} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/[0.05]">
+                      <div className="flex items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full ${trade.type === 'buy' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                        <span className="text-white/80 font-mono text-xs">{trade.trader}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs">
+                        <span className={trade.type === 'buy' ? 'text-emerald-400' : 'text-red-400'}>
+                          {trade.type === 'buy' ? content.modal.buyAction : content.modal.sellAction} {trade.amount.toFixed(3)} ETH
+                        </span>
+                        <span className="text-white/30">{formatTimeAgo(trade.timestamp, content.modal.ago)}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-white/30 text-sm text-center py-4">{content.modal.noTrades}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 右侧 - 交易面板 */}
+          <div className="w-full lg:w-[380px] bg-[#12141a] flex flex-col">
+            {/* 买卖切换 */}
+            <div className="flex border-b border-white/10">
+              <button
+                onClick={() => setMode('buy')}
+                className={`flex-1 py-4 text-sm font-bold transition-all ${
+                  mode === 'buy' 
+                    ? 'bg-emerald-500 text-black' 
+                    : 'hover:bg-white/5 text-white/60'
+                }`}
+              >
+                {content.modal.buy}
+              </button>
+              <button
+                onClick={() => setMode('sell')}
+                className={`flex-1 py-4 text-sm font-bold transition-all ${
+                  mode === 'sell' 
+                    ? 'bg-red-500 text-white' 
+                    : 'hover:bg-white/5 text-white/60'
+                }`}
+              >
+                {content.modal.sell}
+              </button>
+            </div>
+
+            <div className="p-6 flex-1 flex flex-col gap-5">
+              {/* 输入区域 */}
+              <div className="space-y-4">
+                <div className="bg-black/40 rounded-xl p-4 border border-white/10 focus-within:border-rose-500/50 transition-colors">
+                  <div className="flex justify-between text-xs text-white/40 mb-2">
+                    <span>{content.modal.amount} ({mode === 'buy' ? 'ETH' : drama.ticker})</span>
+                    <span>{content.modal.max}: 0.5</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0.0"
+                      className="bg-transparent text-white font-mono text-xl w-full focus:outline-none"
+                    />
+                    <span className="text-white/60 font-bold text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+                      {mode === 'buy' ? 'ETH' : drama.ticker}
+                    </span>
+                  </div>
+                </div>
+
+                {amount && (
+                  <div className="text-center text-white/30 text-lg">↓</div>
+                )}
+
+                <div className="bg-black/40 rounded-xl p-4 border border-white/10">
+                  <div className="flex justify-between text-xs text-white/40 mb-2">
+                    <span>{content.modal.receive}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-white font-mono text-xl w-full">
+                      {amount 
+                        ? (mode === 'buy' 
+                          ? tokenAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })
+                          : (Number(amount) * drama.currentPrice).toFixed(4)
+                        ) 
+                        : '0.0'
+                      }
+                    </div>
+                    <span className="text-white/60 font-bold text-sm bg-white/10 px-3 py-1.5 rounded-lg">
+                      {mode === 'buy' ? drama.ticker : 'ETH'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 快捷按钮 */}
+              <div className="flex gap-2">
+                {['0.01', '0.05', '0.1', '0.5'].map((val) => (
+                  <button
+                    key={val}
+                    onClick={() => setAmount(val)}
+                    className="flex-1 py-2 text-xs font-mono text-white/60 bg-white/5 hover:bg-white/10 rounded-lg transition"
+                  >
+                    {val}
+                  </button>
+                ))}
+              </div>
+
+              {/* 费用信息 */}
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-white/40">
+                  <span>{content.modal.fee}</span>
+                  <span>~0.003 ETH</span>
+                </div>
+                <div className="flex justify-between text-white/40">
+                  <span>Slippage</span>
+                  <span>0.5%</span>
+                </div>
+              </div>
+
+              {/* 交易按钮 */}
+              <button
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-all active:scale-95 ${
+                  mode === 'buy'
+                    ? 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_10px_40px_rgba(34,197,94,0.3)]'
+                    : 'bg-red-500 hover:bg-red-400 text-white shadow-[0_10px_40px_rgba(239,68,68,0.3)]'
+                }`}
+              >
+                {mode === 'buy' ? content.modal.placeTrade : content.modal.sellTokens}
+              </button>
+
+              {/* 底部链接 */}
+              <div className="flex gap-3 mt-auto">
+                <Link 
+                  href="/theater/demo"
+                  className="flex-1 py-3 text-center rounded-xl bg-gradient-to-r from-rose-500/20 to-fuchsia-500/20 border border-rose-500/30 text-rose-400 font-medium text-sm hover:border-rose-500/50 transition"
+                >
+                  {content.modal.enterTheater}
+                </Link>
+                <Link 
+                  href={`/drama/${drama.id}`}
+                  className="flex-1 py-3 text-center rounded-xl border border-white/10 text-white/60 font-medium text-sm hover:text-white hover:border-white/20 transition"
+                >
+                  {content.modal.viewDetails}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+        }
+      `}</style>
+    </div>
+  );
+}
+
 // Drama 卡片组件
-function DramaCard({ drama, index }: { drama: Drama; index: number }) {
-  const risk = RISK_MAP[drama.rugRisk];
-  const aiStatus = drama.aiStatus ? AI_STATUS_MAP[drama.aiStatus] : null;
+function DramaCard({ 
+  drama, 
+  index, 
+  content,
+  onTradeClick,
+}: { 
+  drama: Drama; 
+  index: number;
+  content: ReturnType<typeof getDramasContent>;
+  onTradeClick: () => void;
+}) {
+  const aiStatusText = content.aiStatus[drama.aiStatus as keyof typeof content.aiStatus] || content.aiStatus.idle;
   const progressPercent = Math.min(100, drama.bondingCurveProgress);
   const isNearComplete = progressPercent >= 80;
+  
+  const riskColors = {
+    low: 'text-emerald-400',
+    medium: 'text-amber-400',
+    high: 'text-red-400',
+  };
+  
+  const aiStatusColors = {
+    idle: 'text-white/50 bg-white/10',
+    scripting: 'text-blue-400 bg-blue-500/20',
+    casting: 'text-purple-400 bg-purple-500/20',
+    filming: 'text-amber-400 bg-amber-500/20',
+    editing: 'text-green-400 bg-green-500/20',
+  };
   
   return (
     <ScrollReveal delay={index * 50}>
@@ -70,12 +361,12 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
             <div className="flex gap-2 flex-wrap">
               {isNearComplete && (
                 <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-black text-[10px] font-bold uppercase tracking-wider shadow-lg animate-pulse">
-                  🔥 即将毕业
+                  {content.card.graduating}
                 </span>
               )}
               {drama.rugRisk === 'high' && (
-                <span className={`px-2.5 py-1 rounded-full ${risk.bg} border ${risk.color} text-[10px] font-bold backdrop-blur-md`}>
-                  🚩 高风险
+                <span className="px-2.5 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-bold backdrop-blur-md">
+                  {content.card.highRisk}
                 </span>
               )}
             </div>
@@ -85,13 +376,15 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
           </div>
           
           {/* AI 状态 */}
-          {aiStatus && (
+          {drama.aiStatus && (
             <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
               <span className="relative flex h-2 w-2">
-                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${aiStatus.color.replace('text-', 'bg-')} opacity-75`}></span>
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${aiStatus.color.replace('text-', 'bg-')}`}></span>
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${aiStatusColors[drama.aiStatus as keyof typeof aiStatusColors]?.replace('text-', 'bg-').split(' ')[0]}`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${aiStatusColors[drama.aiStatus as keyof typeof aiStatusColors]?.replace('text-', 'bg-').split(' ')[0]}`}></span>
               </span>
-              <span className={`text-[10px] font-medium ${aiStatus.color}`}>{aiStatus.label}</span>
+              <span className={`text-[10px] font-medium ${aiStatusColors[drama.aiStatus as keyof typeof aiStatusColors]?.split(' ')[0]}`}>
+                {aiStatusText}
+              </span>
             </div>
           )}
         </div>
@@ -104,8 +397,8 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
               <span className="px-2 py-0.5 rounded bg-gradient-to-r from-rose-500/20 to-fuchsia-500/20 border border-rose-500/30 text-rose-400 text-xs font-bold font-mono">
                 ${drama.ticker}
               </span>
-              <span className={`text-[10px] ${risk.color}`}>
-                Dev: {drama.devHolding}%
+              <span className={`text-[10px] ${riskColors[drama.rugRisk]}`}>
+                {content.card.dev}: {drama.devHolding}%
               </span>
             </div>
             <h3 className="text-lg font-bold text-white group-hover:text-rose-400 transition-colors line-clamp-1">
@@ -119,7 +412,7 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
           {/* 众筹进度条 */}
           <div>
             <div className="flex justify-between items-center mb-2 text-xs">
-              <span className="text-white/50">Bonding Curve</span>
+              <span className="text-white/50">{content.card.bondingCurve}</span>
               <span className={`font-mono font-bold ${isNearComplete ? 'text-amber-400' : 'text-emerald-400'}`}>
                 {progressPercent.toFixed(1)}%
               </span>
@@ -136,8 +429,8 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
             </div>
             {drama.fundingGoal && (
               <div className="flex justify-between items-center mt-2 text-[10px] text-white/40">
-                <span>{drama.marketCap.toFixed(1)} ETH raised</span>
-                <span>Goal: {drama.fundingGoal} ETH</span>
+                <span>{drama.marketCap.toFixed(1)} ETH {content.card.raised}</span>
+                <span>{content.card.goal}: {drama.fundingGoal} ETH</span>
               </div>
             )}
           </div>
@@ -146,15 +439,15 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
           <div className="grid grid-cols-3 gap-3 py-3 border-y border-white/[0.06]">
             <div className="text-center">
               <div className="text-lg font-bold font-mono text-white">{formatNumber(drama.holders)}</div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">Holders</div>
+              <div className="text-[10px] text-white/40 uppercase tracking-wider">{content.card.holders}</div>
             </div>
             <div className="text-center border-x border-white/[0.06]">
               <div className="text-lg font-bold font-mono text-emerald-400">{drama.marketCap.toFixed(1)}E</div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">Mcap</div>
+              <div className="text-[10px] text-white/40 uppercase tracking-wider">{content.card.mcap}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold font-mono text-white">${(drama.currentPrice * 2420).toFixed(2)}</div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">Price</div>
+              <div className="text-[10px] text-white/40 uppercase tracking-wider">{content.card.price}</div>
             </div>
           </div>
           
@@ -166,7 +459,7 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
                 return (
                   <button 
                     key={key}
-                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[10px] text-white/60 hover:text-white transition"
+                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[10px] text-white/60 hover:text-white transition hover:scale-110 active:scale-95"
                   >
                     <span>{emoji}</span>
                     <span className="font-mono">{formatNumber(count)}</span>
@@ -179,25 +472,21 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
           {/* 操作按钮 */}
           <div className="flex gap-3 pt-2">
             <Link 
-              href={`/theater/demo`}
+              href="/theater/demo"
               className="flex-1 py-2.5 text-center rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white font-bold text-sm hover:shadow-[0_10px_40px_rgba(229,9,20,0.4)] hover:scale-[1.02] transition-all"
             >
-              进入剧场 →
+              {content.card.enterTheater}
             </Link>
-            <button className="px-4 py-2.5 rounded-xl border border-white/10 text-white/70 hover:text-white hover:border-white/30 transition text-sm">
-              交易
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onTradeClick();
+              }}
+              className="px-4 py-2.5 rounded-xl border border-white/10 text-white/70 hover:text-white hover:border-white/30 hover:bg-white/5 transition text-sm font-medium"
+            >
+              {content.card.trade}
             </button>
-          </div>
-        </div>
-        
-        {/* Tags */}
-        <div className="absolute bottom-0 left-0 right-0 px-5 pb-5">
-          <div className="flex gap-2 flex-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
-            {drama.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-white/60">
-                {tag}
-              </span>
-            ))}
           </div>
         </div>
       </div>
@@ -206,8 +495,9 @@ function DramaCard({ drama, index }: { drama: Drama; index: number }) {
 }
 
 // King of the Hill 组件
-function KingOfTheHillHero({ drama }: { drama: Drama }) {
+function KingOfTheHillHero({ drama, content }: { drama: Drama; content: ReturnType<typeof getDramasContent> }) {
   const progressPercent = Math.min(100, ((drama.marketCap || 0) / (drama.fundingGoal || 100)) * 100);
+  const aiStatusText = content.aiStatus[drama.aiStatus as keyof typeof content.aiStatus] || content.aiStatus.idle;
   
   return (
     <ScrollReveal>
@@ -231,7 +521,7 @@ function KingOfTheHillHero({ drama }: { drama: Drama }) {
               <div className="flex flex-wrap items-center gap-3">
                 <MagneticElement strength={0.1}>
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black text-sm uppercase tracking-wider shadow-[0_10px_40px_rgba(245,158,11,0.4)] animate-pulse">
-                    👑 King of the Hill
+                    {content.kingOfHill.badge}
                   </span>
                 </MagneticElement>
                 {drama.aiStatus && (
@@ -240,7 +530,7 @@ function KingOfTheHillHero({ drama }: { drama: Drama }) {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                     </span>
-                    <span className="text-white/80">AI: {AI_STATUS_MAP[drama.aiStatus]?.label}</span>
+                    <span className="text-white/80">AI: {aiStatusText}</span>
                   </span>
                 )}
               </div>
@@ -266,7 +556,7 @@ function KingOfTheHillHero({ drama }: { drama: Drama }) {
                 <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-3">
                   <div className="flex justify-between items-end">
                     <div>
-                      <span className="text-xs uppercase tracking-wider text-amber-400 font-bold">当前目标</span>
+                      <span className="text-xs uppercase tracking-wider text-amber-400 font-bold">{content.kingOfHill.currentGoal}</span>
                       <p className="text-white font-semibold mt-1">{drama.nextMilestone}</p>
                     </div>
                     <div className="text-right">
@@ -288,19 +578,19 @@ function KingOfTheHillHero({ drama }: { drama: Drama }) {
               {/* 按钮组 */}
               <div className="flex flex-wrap gap-4">
                 <Link 
-                  href={`/theater/demo`}
+                  href="/theater/demo"
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white font-bold text-lg hover:shadow-[0_20px_60px_rgba(229,9,20,0.5)] hover:scale-[1.03] transition-all"
                 >
-                  <span>🎬</span> 进入分镜剧场
+                  {content.kingOfHill.enterTheater}
                 </Link>
                 <button className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-amber-500 text-black font-bold hover:bg-amber-400 transition">
-                  <span>💰</span> 支持项目
+                  {content.kingOfHill.supportProject}
                 </button>
                 <Link 
                   href={`/drama/${drama.id}/tree`}
                   className="inline-flex items-center gap-2 px-6 py-4 rounded-xl border border-white/20 text-white hover:bg-white/5 transition"
                 >
-                  <span>🌳</span> 查看故事树
+                  {content.kingOfHill.viewStoryTree}
                 </Link>
               </div>
             </div>
@@ -312,31 +602,31 @@ function KingOfTheHillHero({ drama }: { drama: Drama }) {
                   <div className="text-3xl font-mono font-bold text-white">
                     <CountUp end={drama.holders} duration={2000} />
                   </div>
-                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Holders</div>
+                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">{content.kingOfHill.holders}</div>
                 </div>
                 <div className="p-5 rounded-2xl bg-white/5 border border-white/10 text-center">
                   <div className="text-3xl font-mono font-bold text-emerald-400">
                     {drama.marketCap.toFixed(1)}E
                   </div>
-                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Market Cap</div>
+                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">{content.kingOfHill.marketCap}</div>
                 </div>
                 <div className="p-5 rounded-2xl bg-white/5 border border-white/10 text-center">
                   <div className="text-3xl font-mono font-bold text-rose-400">
                     {drama.bondingCurveProgress.toFixed(0)}%
                   </div>
-                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Curve</div>
+                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">{content.kingOfHill.curve}</div>
                 </div>
                 <div className="p-5 rounded-2xl bg-white/5 border border-white/10 text-center">
                   <div className="text-3xl font-mono font-bold text-amber-400">
                     {drama.devHolding}%
                   </div>
-                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Dev Hold</div>
+                  <div className="text-xs text-white/50 uppercase tracking-wider mt-1">{content.kingOfHill.devHold}</div>
                 </div>
               </div>
               
               {/* Top Holders */}
               <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                <h4 className="text-xs uppercase tracking-wider text-white/50 mb-3">Top Holders</h4>
+                <h4 className="text-xs uppercase tracking-wider text-white/50 mb-3">{content.kingOfHill.topHolders}</h4>
                 <div className="space-y-2">
                   {drama.topHolders.slice(0, 3).map((holder, i) => (
                     <div key={holder.address} className="flex items-center justify-between text-sm">
@@ -344,7 +634,7 @@ function KingOfTheHillHero({ drama }: { drama: Drama }) {
                         <span className="text-white/30 font-mono text-xs">{i + 1}</span>
                         <span className="text-white/80 font-mono">{holder.address}</span>
                         {holder.isDev && (
-                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px]">DEV</span>
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px]">{content.kingOfHill.devTag}</span>
                         )}
                       </div>
                       <span className="text-white/60 font-mono">{holder.percentage}%</span>
@@ -361,15 +651,15 @@ function KingOfTheHillHero({ drama }: { drama: Drama }) {
 }
 
 // 平台统计组件
-function PlatformStats() {
+function PlatformStats({ content }: { content: ReturnType<typeof getDramasContent> }) {
   return (
     <ScrollReveal>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: '总募资额', value: 420.5, suffix: 'ETH', color: 'from-emerald-400 to-teal-400' },
-          { label: '活跃项目', value: 24, suffix: '', color: 'from-rose-400 to-fuchsia-400' },
-          { label: '创作者', value: 156, suffix: '', color: 'from-amber-400 to-orange-400' },
-          { label: '分镜总数', value: 1247, suffix: '', color: 'from-blue-400 to-indigo-400' },
+          { label: content.stats.totalRaised, value: 420.5, suffix: 'ETH', color: 'from-emerald-400 to-teal-400' },
+          { label: content.stats.activeProjects, value: 24, suffix: '', color: 'from-rose-400 to-fuchsia-400' },
+          { label: content.stats.creators, value: 156, suffix: '', color: 'from-amber-400 to-orange-400' },
+          { label: content.stats.totalFrames, value: 1247, suffix: '', color: 'from-blue-400 to-indigo-400' },
         ].map((stat, i) => (
           <div key={i} className="p-5 rounded-2xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.06] text-center">
             <div className={`text-3xl font-mono font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
@@ -385,11 +675,15 @@ function PlatformStats() {
 }
 
 export default function DramasPage() {
+  const { language } = useLanguage();
+  const content = getDramasContent(language);
+  
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [sort, setSort] = useState<SortType>('hot');
   const [searchQuery, setSearchQuery] = useState('');
   const [dramas, setDramas] = useState<Drama[]>(INITIAL_DRAMAS);
+  const [selectedDramaForTrade, setSelectedDramaForTrade] = useState<Drama | null>(null);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 800);
@@ -418,6 +712,16 @@ export default function DramasPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const categories = [
+    { id: 'all', label: content.categories.all, icon: '🎬' },
+    { id: 'meme', label: content.categories.meme, icon: '🐸' },
+    { id: 'scifi', label: content.categories.scifi, icon: '🤖' },
+    { id: 'suspense', label: content.categories.suspense, icon: '🕵️' },
+    { id: 'adventure', label: content.categories.adventure, icon: '🏺' },
+    { id: 'history', label: content.categories.history, icon: '📜' },
+    { id: 'documentary', label: content.categories.documentary, icon: '📹' },
+  ];
+
   const filteredDramas = dramas
     .filter(drama => {
       if (activeCategory !== 'all' && drama.category !== activeCategory) return false;
@@ -445,7 +749,7 @@ export default function DramasPage() {
             <div className="absolute inset-0 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center text-3xl">🎬</div>
           </div>
-          <p className="text-white/60">加载众筹列表...</p>
+          <p className="text-white/60">Loading...</p>
         </div>
       </div>
     );
@@ -473,15 +777,15 @@ export default function DramasPage() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                   </span>
-                  <span className="text-sm text-white/80">Live · AI Drama Launchpad</span>
+                  <span className="text-sm text-white/80">{content.header.badge}</span>
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-black">
                   <span className="bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
-                    Drama.fun
+                    {content.header.title}
                   </span>
                 </h1>
                 <p className="text-white/50 mt-2 text-lg">
-                  AI 驱动的互动漫剧众筹平台 · 支持你喜欢的故事
+                  {content.header.subtitle}
                 </p>
               </div>
               
@@ -492,13 +796,13 @@ export default function DramasPage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="搜索项目..."
+                    placeholder={content.header.searchPlaceholder}
                     className="w-64 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-rose-500/50 transition"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs font-mono">⌘K</span>
                 </div>
                 <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white font-bold hover:shadow-[0_10px_40px_rgba(229,9,20,0.4)] transition">
-                  创建项目
+                  {content.header.createProject}
                 </button>
               </div>
             </div>
@@ -507,13 +811,13 @@ export default function DramasPage() {
 
         {/* 平台统计 */}
         <section className="mb-12">
-          <PlatformStats />
+          <PlatformStats content={content} />
         </section>
 
         {/* King of the Hill */}
         {kingOfTheHill && !searchQuery && activeCategory === 'all' && (
           <section className="mb-12">
-            <KingOfTheHillHero drama={kingOfTheHill} />
+            <KingOfTheHillHero drama={kingOfTheHill} content={content} />
           </section>
         )}
 
@@ -523,7 +827,7 @@ export default function DramasPage() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               {/* 分类标签 */}
               <div className="flex gap-2 flex-wrap">
-                {CATEGORIES.map(cat => (
+                {categories.map(cat => (
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
@@ -541,11 +845,11 @@ export default function DramasPage() {
               
               {/* 排序选项 */}
               <div className="flex items-center gap-2">
-                <span className="text-white/40 text-sm">排序:</span>
+                <span className="text-white/40 text-sm">{content.sort.label}</span>
                 {[
-                  { id: 'hot', label: '🔥 热门' },
-                  { id: 'marketcap', label: '💰 市值' },
-                  { id: 'new', label: '✨ 最新' },
+                  { id: 'hot', label: content.sort.hot },
+                  { id: 'marketcap', label: content.sort.marketcap },
+                  { id: 'new', label: content.sort.new },
                 ].map(s => (
                   <button
                     key={s.id}
@@ -568,14 +872,20 @@ export default function DramasPage() {
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDramas.map((drama, index) => (
-              <DramaCard key={drama.id} drama={drama} index={index} />
+              <DramaCard 
+                key={drama.id} 
+                drama={drama} 
+                index={index} 
+                content={content}
+                onTradeClick={() => setSelectedDramaForTrade(drama)}
+              />
             ))}
           </div>
           
           {filteredDramas.length === 0 && (
             <div className="text-center py-20">
               <div className="text-6xl mb-4">🎬</div>
-              <p className="text-white/50 text-lg">没有找到匹配的项目</p>
+              <p className="text-white/50 text-lg">{content.empty}</p>
             </div>
           )}
         </section>
@@ -585,20 +895,20 @@ export default function DramasPage() {
           <ScrollReveal>
             <div className="p-8 lg:p-12 rounded-3xl bg-gradient-to-br from-rose-500/10 via-transparent to-fuchsia-500/10 border border-white/[0.06]">
               <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">
-                准备好创作你的 AI 漫剧了吗？
+                {content.cta.title}
               </h3>
               <p className="text-white/50 max-w-xl mx-auto mb-8">
-                加入我们的创作者社区，使用 AI 工具生成分镜，让观众投票决定剧情走向
+                {content.cta.description}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <button className="px-8 py-4 rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white font-bold text-lg hover:shadow-[0_20px_60px_rgba(229,9,20,0.5)] transition">
-                  开始创建 →
+                  {content.cta.startCreating}
                 </button>
                 <Link 
                   href="/whitepaper"
                   className="px-8 py-4 rounded-xl border border-white/20 text-white hover:bg-white/5 transition"
                 >
-                  阅读白皮书
+                  {content.cta.readWhitepaper}
                 </Link>
               </div>
             </div>
@@ -606,12 +916,14 @@ export default function DramasPage() {
         </section>
       </div>
 
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
+      {/* 交易模态框 */}
+      {selectedDramaForTrade && (
+        <TradeModal 
+          drama={selectedDramaForTrade} 
+          onClose={() => setSelectedDramaForTrade(null)}
+          content={content}
+        />
+      )}
     </div>
   );
 }

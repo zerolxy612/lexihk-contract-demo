@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { getDramaContent } from '@/lib/i18n/drama';
 
 interface VoteOption {
     id: string;
@@ -10,13 +12,15 @@ interface VoteOption {
 }
 
 export function GovernancePanel() {
+    const { language } = useLanguage();
+    const content = getDramaContent(language);
     const [activeTab, setActiveTab] = useState<'plot' | 'cast'>('plot');
     const [hasVoted, setHasVoted] = useState(false);
 
     // Mock Data
     const plotOptions: VoteOption[] = [
-        { id: 'a', label: 'Kill the villain in Ep 3', votes: 1240, percentage: 65 },
-        { id: 'b', label: 'Redeem the villain', votes: 650, percentage: 35 },
+        { id: 'a', label: content.governance.plotOptions[0], votes: 1240, percentage: 65 },
+        { id: 'b', label: content.governance.plotOptions[1], votes: 650, percentage: 35 },
     ];
 
     const handleVote = (id: string) => {
@@ -28,8 +32,8 @@ export function GovernancePanel() {
         <div className="bg-[#15171e] rounded-3xl p-6 border border-white/10 h-full flex flex-col">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="font-bold text-white text-lg flex items-center gap-2">
-                    🏛 Governance
-                    <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded uppercase">Live</span>
+                    🏛 {content.governance.title}
+                    <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded uppercase">{content.governance.live}</span>
                 </h3>
 
                 <div className="flex bg-black/20 rounded-lg p-1">
@@ -37,13 +41,13 @@ export function GovernancePanel() {
                         onClick={() => setActiveTab('plot')}
                         className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${activeTab === 'plot' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'}`}
                     >
-                        Plot
+                        {content.governance.tabPlot}
                     </button>
                     <button
                         onClick={() => setActiveTab('cast')}
                         className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${activeTab === 'cast' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white'}`}
                     >
-                        Cast
+                        {content.governance.tabCast}
                     </button>
                 </div>
             </div>
@@ -52,10 +56,10 @@ export function GovernancePanel() {
                 {activeTab === 'plot' && (
                     <div className="space-y-4">
                         <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
-                            <p className="text-xs text-accent font-bold uppercase mb-2">Proposal #42</p>
-                            <h4 className="font-bold text-white mb-2">Episode 3: The Fate of Dr. Xenon</h4>
-                            <p className="text-sm text-white/70">Should Dr. Xenon survive the explosion or perish, changing the timeline forever?</p>
-                            <p className="text-xs text-white/40 mt-2">Ends in: 14h 20m</p>
+                            <p className="text-xs text-accent font-bold uppercase mb-2">{content.governance.proposalLabel}</p>
+                            <h4 className="font-bold text-white mb-2">{content.governance.proposalTitle}</h4>
+                            <p className="text-sm text-white/70">{content.governance.proposalBody}</p>
+                            <p className="text-xs text-white/40 mt-2">{content.governance.endsIn}</p>
                         </div>
 
                         <div className="space-y-3">
@@ -83,7 +87,7 @@ export function GovernancePanel() {
 
                         {hasVoted && (
                             <p className="text-center text-xs text-green-400 mt-2 animate-pulse">
-                                ✓ Your vote has been recorded on-chain
+                                {content.governance.voteRecorded}
                             </p>
                         )}
                     </div>
@@ -91,7 +95,7 @@ export function GovernancePanel() {
 
                 {activeTab === 'cast' && (
                     <div className="text-center py-10">
-                        <p className="text-white/40 text-sm">No casting calls active right now.</p>
+                        <p className="text-white/40 text-sm">{content.governance.noCasting}</p>
                     </div>
                 )}
             </div>

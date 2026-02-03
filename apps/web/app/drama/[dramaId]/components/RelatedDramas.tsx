@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { getDramaContent } from '@/lib/i18n/drama';
 
 // Mocking some data or importing from a shared source would be better, 
 // but for now we will adapt a subset of data or reuse the structure.
@@ -43,13 +45,16 @@ const RELATED_DRAMAS = [
 ];
 
 export function RelatedDramas({ currentDramaId }: RelatedDramasProps) {
+    const { language } = useLanguage();
+    const content = getDramaContent(language);
+
     // Filter out current drama if we had the full list
     const displayDramas = RELATED_DRAMAS.filter(d => d.id !== currentDramaId).slice(0, 4);
 
     return (
         <div className="space-y-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <span className="text-accent">🍿</span> More Like This
+                <span className="text-accent">🍿</span> {content.related.title}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -70,7 +75,7 @@ export function RelatedDramas({ currentDramaId }: RelatedDramasProps) {
                                         ${drama.ticker}
                                     </p>
                                     <h4 className="font-bold leading-tight group-hover:text-accent transition-colors">{drama.title}</h4>
-                                    <p className="text-xs text-white/50 mt-1">MCap: {drama.marketCap}E</p>
+                                    <p className="text-xs text-white/50 mt-1">{content.related.mcapLabel} {drama.marketCap}{content.related.mcapSuffix}</p>
                                 </div>
                             </div>
                         </div>
