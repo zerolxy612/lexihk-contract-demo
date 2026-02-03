@@ -79,10 +79,16 @@ export interface WhitepaperContent {
         desc: string;
         warning: string;
       };
+      highWaterMark: {
+        title: string;
+        rule: string;
+        reason: string;
+        note: string;
+      };
       milestones: {
         title: string;
         headers: string[];
-        rows: { fdv: string; unlockable: string; locked: string }[];
+        rows: { fdv: string; unlockable: string; locked: string; rate: string; logic: string }[];
         note: string;
       };
     };
@@ -92,17 +98,20 @@ export interface WhitepaperContent {
         title: string;
         items: string[];
       };
+      executionFlow: {
+        title: string;
+        steps: { step: string; desc: string }[];
+      };
       formula: {
         title: string;
         intro: string;
         formula: string;
         params: { name: string; desc: string }[];
       };
-      rates: {
+      priority: {
         title: string;
-        headers: string[];
-        rows: { range: string; rate: string }[];
-        note: string;
+        intro: string;
+        items: { order: string; name: string; reason: string }[];
       };
       cooldown: {
         title: string;
@@ -160,6 +169,12 @@ export interface WhitepaperContent {
         intro: string;
         company: { percent: string; label: string };
         buyback: { percent: string; label: string };
+      };
+      flywheel: {
+        title: string;
+        desc: string;
+        highlight: string;
+        mechanism: string;
       };
       execution: {
         title: string;
@@ -277,7 +292,7 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
             { category: 'LP Liquidity', percent: '2%', usage: 'Establish main trading pool (LP locked)' },
             { category: 'ICO Public Sale', percent: '8%', usage: 'Three rounds of fundraising' },
             { category: 'Unlock Pool', percent: '90%', usage: 'Gradually unlocked by FDV milestones' },
-            { category: 'Reserve', percent: '≥40%', usage: 'Long-term lock to reduce dilution risk' },
+            { category: 'Reserve', percent: '≥50%', usage: 'Long-term lock to reduce dilution risk' },
           ],
         },
       },
@@ -326,16 +341,23 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
           desc: 'When FDV reaches preset thresholds, part of the Unlock Pool becomes "unlockable quota".',
           warning: 'Note: Reaching a milestone does NOT mean immediate full release; final release is still limited by "daily release cap".',
         },
+        highWaterMark: {
+          title: 'High-Water Mark Mechanism',
+          rule: 'Unlock only references historical highest FDV (24h TWAP average)',
+          reason: 'Prevents program from stopping release due to short-term price drops, avoiding community panic.',
+          note: 'Once unlock permission is granted, even if price drops, release permission is retained, but daily cap will auto-slow due to rate increase or LP decrease.',
+        },
         milestones: {
-          title: 'Milestone Table (Example)',
-          headers: ['FDV Reached', 'Cumulative Unlockable', 'Still Locked'],
+          title: 'FDV Milestones & Release Rates',
+          headers: ['FDV Range', 'Cumulative Unlock', 'Still Locked', 'Daily Rate', 'Logic'],
           rows: [
-            { fdv: '$5M', unlockable: '5%', locked: '85%' },
-            { fdv: '$10M', unlockable: '10%', locked: '80%' },
-            { fdv: '$50M', unlockable: '20%', locked: '70%' },
-            { fdv: '$100M', unlockable: '30%', locked: '60%' },
+            { fdv: '<$5M', unlockable: '15%', locked: '85%', rate: '1.00%', logic: 'Early circulation for consensus' },
+            { fdv: '$5M - $20M', unlockable: '20%', locked: '80%', rate: '0.50%', logic: 'Price rising, tighten release' },
+            { fdv: '$20M - $50M', unlockable: '30%', locked: '70%', rate: '0.33%', logic: 'Growth phase, absolute increase' },
+            { fdv: '$50M - $100M', unlockable: '40%', locked: '60%', rate: '0.25%', logic: 'Stable phase, prevent dumps' },
+            { fdv: '>$100M', unlockable: '50%', locked: '50%', rate: '0.20%', logic: 'Long-term reserve state' },
           ],
-          note: 'Note: This table is an example; final thresholds and percentages are determined by on-chain parameters. Still locked includes final Reserve target (≥40-50%).',
+          note: 'Note: This table is based on lock ratio (85%...50%) and rate design. Final parameters are determined by on-chain config.',
         },
       },
       dailyCap: {
@@ -348,31 +370,39 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
             'Match marketing budget with market absorption capacity',
           ],
         },
+        executionFlow: {
+          title: 'Execution Flow',
+          steps: [
+            { step: 'Milestone Detection', desc: 'Contract checks 24h TWAP FDV every 24 hours' },
+            { step: 'Quota Archive', desc: 'If FDV hits new high (e.g. $8M→$12M), auto-raise unlockedRemaining from 15% to 20%' },
+            { step: 'Calculate DailyCap', desc: 'Base quota = current FDV tier rate × TotalSupply' },
+            { step: 'Safety Calibration', desc: 'Compare LP depth to ensure dumps won\'t break the market' },
+            { step: 'Execute Release', desc: 'Transfer calculated quota from lock contract to target accounts' },
+          ],
+        },
         formula: {
           title: 'Core Formula',
           intro: 'Maximum daily release from Unlock Pool to Treasury (dailyCap) is defined as:',
-          formula: 'dailyCap = min(unlockedRemaining, TotalSupply × rate, TotalSupply × 0.3%)',
+          formula: 'dailyCap = min(unlockedRemaining, TotalSupply × rate, LP_depth × k)',
           params: [
             { name: 'unlockedRemaining', desc: 'Remaining releasable quota under current milestone' },
             { name: 'TotalSupply × rate', desc: 'Dynamic release ratio determined by FDV tier' },
-            { name: 'TotalSupply × 0.3%', desc: 'Global hard cap (never exceeded)' },
+            { name: 'LP_depth × k', desc: 'Safety coefficient to prevent market dump' },
           ],
         },
-        rates: {
-          title: 'Rate Tiers (Example)',
-          headers: ['FDV Range', 'Daily Rate'],
-          rows: [
-            { range: 'FDV ≤ $5M', rate: '1.00%' },
-            { range: '$5M < FDV ≤ $10M', rate: '0.50%' },
-            { range: '$10M < FDV ≤ $50M', rate: '0.33%' },
-            { range: 'FDV ≥ $100M', rate: '0.25%' },
+        priority: {
+          title: 'Release Priority Queue',
+          intro: 'When dailyCap quota is generated, release follows this priority:',
+          items: [
+            { order: '1st', name: 'Content Vault (Creator Incentives)', reason: 'Ensure ecosystem productivity' },
+            { order: '2nd', name: 'ICO Investors', reason: 'Honor commitments to early supporters' },
+            { order: '3rd', name: 'Team/Reserve', reason: 'Last priority, maximize external confidence' },
           ],
-          note: 'Note: Rate decreases as FDV increases, ensuring more restrained release as project scales.',
         },
         cooldown: {
           title: 'Frequency Limits & Cooldown',
           items: [
-            'Only one release execution allowed per day/N hours (cooldown)',
+            'Only one release execution allowed per 24 hours (cooldown)',
             'Over-frequency execution fails directly',
             'All release events recorded on-chain for Dashboard display',
           ],
@@ -411,8 +441,8 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
         definition: {
           title: 'Reserve Definition',
           intro: 'Reserve is the portion of total supply that is ultimately retained long-term, targeting:',
-          target: '≥ 40%',
-          targetNote: '(ideal 50%)',
+          target: '≥ 50%',
+          targetNote: '(minimum 50%)',
           desc: 'Not entering market circulation long-term',
         },
         methods: {
@@ -455,12 +485,18 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
           company: { percent: '50%', label: 'Company Revenue' },
           buyback: { percent: '50%', label: 'Buyback Budget' },
         },
+        flywheel: {
+          title: 'Buyback Flywheel Mechanism',
+          desc: '50% of ad revenue is used for buyback.',
+          highlight: 'Bought-back tokens are directly burned, or injected into Reserve to extend protocol lifespan.',
+          mechanism: 'This creates dynamic equilibrium: while "daily release" increases supply, buyback reduces supply.',
+        },
         execution: {
           title: 'Buyback Execution',
           intro: 'Buyback budget is used to buy back tokens on the market. Bought-back tokens are used for:',
           uses: [
-            'Re-invest in marketing/ecosystem incentives',
-            'Or (optional) burn/re-lock (determined by governance)',
+            'Direct burn (reduce total supply)',
+            'Inject into Reserve (extend protocol runway)',
           ],
           note: 'Buyback execution can initially be performed by centralized operations with on-chain public records, later upgraded to on-chain automatic executor.',
         },
@@ -505,6 +541,7 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
         terms: [
           { term: 'FDV', full: 'Fully Diluted Valuation', desc: '= Total Supply × Price' },
           { term: 'TWAP', full: 'Time-Weighted Average Price', desc: 'Average price weighted by time' },
+          { term: 'High-Water Mark', desc: 'Historical highest FDV, unlock reference point' },
           { term: 'Unlock Pool', desc: 'Pool storing tokens pending release' },
           { term: 'Treasury', desc: 'Protocol vault receiving funds and managing budget allocation' },
           { term: 'Vault', desc: 'Purpose-specific vault (Marketing/Content/Community)' },
@@ -596,7 +633,7 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
             { category: 'LP 启动流动性', percent: '2%', usage: '建立主交易池流动性（LP 锁仓）' },
             { category: 'ICO 公开募集', percent: '8%', usage: '分三轮募资' },
             { category: 'Unlock Pool', percent: '90%', usage: '按市值里程碑逐步解锁' },
-            { category: 'Reserve', percent: '≥40%', usage: '长期锁定、降低无限稀释风险' },
+            { category: 'Reserve', percent: '≥50%', usage: '长期锁定、降低无限稀释风险' },
           ],
         },
       },
@@ -645,20 +682,27 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
           desc: '当 FDV 达到预设档位时，Unlock Pool 的一部分变为"可解锁额度"。',
           warning: '注意：达到里程碑并不意味着可以一次性释放全部额度，最终释放仍受"每日释放上限"限制。',
         },
+        highWaterMark: {
+          title: '高水位机制 (High-Water Mark)',
+          rule: '市值解锁只参考历史最高 FDV（24h TWAP 平均值）',
+          reason: '防止币价短期回调导致程序停止释放，引发社区恐慌。',
+          note: '一旦解锁权限获得，即使币价下跌，释放权依然保留，但日释放上限会因为 rate 的回升或 LP 的减小而自动调慢。',
+        },
         milestones: {
-          title: '里程碑示例表',
-          headers: ['FDV 达到', '累计可解锁比例', '仍锁仓比例'],
+          title: '敲定参数表：市值阶梯与释放速率',
+          headers: ['市值阶段 (FDV)', '累计可解锁上限', '剩余锁仓', '日释放速率', '逻辑说明'],
           rows: [
-            { fdv: '$5M', unlockable: '5%', locked: '85%' },
-            { fdv: '$10M', unlockable: '10%', locked: '80%' },
-            { fdv: '$50M', unlockable: '20%', locked: '70%' },
-            { fdv: '$100M', unlockable: '30%', locked: '60%' },
+            { fdv: '<$5M', unlockable: '15% (含ICO)', locked: '85%', rate: '1.00%', logic: '早期需要流通量建立共识' },
+            { fdv: '$5M - $20M', unlockable: '20%', locked: '80%', rate: '0.50%', logic: '价格上升，收紧释放百分比' },
+            { fdv: '$20M - $50M', unlockable: '30%', locked: '70%', rate: '0.33%', logic: '进入成长期，绝对金额增加' },
+            { fdv: '$50M - $100M', unlockable: '40%', locked: '60%', rate: '0.25%', logic: '稳定期，极致防抛压' },
+            { fdv: '>$100M', unlockable: '50%', locked: '50%', rate: '0.20%', logic: '最终长期储备形态' },
           ],
-          note: '注：该表为示例版本，最终档位与比例以链上参数为准。仍锁仓比例中包含最终 Reserve 目标（≥40–50%）。',
+          note: '注：该表基于锁仓比例 (85%...50%) 和 rate 设计。最终参数以链上配置为准。',
         },
       },
       dailyCap: {
-        title: '每日释放上限',
+        title: '每日释放上限（日抛机制）',
         goals: {
           title: '设计目标',
           items: [
@@ -667,31 +711,39 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
             '使投流预算与市场承受能力更匹配',
           ],
         },
+        executionFlow: {
+          title: '执行流程',
+          steps: [
+            { step: '里程碑检测', desc: '合约每 24 小时检查一次过去 24 小时的 TWAP 折算的 FDV' },
+            { step: '解锁额度归档', desc: '如果 FDV 触达新高（如从 $8M 涨到 $12M），系统自动将 unlockedRemaining 从 15% 提升至 20%' },
+            { step: '计算当日额度', desc: '基础额度 = 当前 FDV 档位对应的 rate × TotalSupply' },
+            { step: '安全校准', desc: '对比流动性池（LP）深度，确保抛压不会瞬间击穿盘面' },
+            { step: '执行释放', desc: '将计算出的额度从锁定合约拨付给对应账户' },
+          ],
+        },
         formula: {
           title: '核心公式',
           intro: '每日从 Unlock Pool 释放到 Treasury 的最大额度（dailyCap）定义为：',
-          formula: 'dailyCap = min(unlockedRemaining, TotalSupply × rate, TotalSupply × 0.3%)',
+          formula: 'dailyCap = min(unlockedRemaining, TotalSupply × rate, LP_depth × k)',
           params: [
             { name: 'unlockedRemaining', desc: '当前已达里程碑下，剩余可释放额度' },
             { name: 'TotalSupply × rate', desc: '按 FDV 分段决定的动态释放比例' },
-            { name: 'TotalSupply × 0.3%', desc: '全局硬上限（任何时候都不能超过）' },
+            { name: 'LP_depth × k', desc: '流动性安全系数，防止击穿盘面' },
           ],
         },
-        rates: {
-          title: 'rate 分段（示例）',
-          headers: ['FDV 区间', 'rate（每日）'],
-          rows: [
-            { range: 'FDV ≤ $5M', rate: '1.00%' },
-            { range: '$5M < FDV ≤ $10M', rate: '0.50%' },
-            { range: '$10M < FDV ≤ $50M', rate: '0.33%' },
-            { range: 'FDV ≥ $100M', rate: '0.25%' },
+        priority: {
+          title: '"日抛"队列优先级',
+          intro: '当 dailyCap 额度生成后，释放顺序为：',
+          items: [
+            { order: '第一', name: '创作者激励 (Content Vault)', reason: '优先保证生态生产力的活跃' },
+            { order: '第二', name: 'ICO 投资者', reason: '兑现对早期支持者的承诺' },
+            { order: '第三', name: '团队/储备', reason: '最后释放，增强外部信心' },
           ],
-          note: '说明：rate 越往后越低，确保项目体量变大后释放更加克制。',
         },
         cooldown: {
           title: '频率限制与冷却',
           items: [
-            '每日/每 N 小时仅允许执行一次释放（cooldown）',
+            '每 24 小时仅允许执行一次释放（cooldown）',
             '超频执行直接失败',
             '所有释放事件链上记录，用于 Dashboard 展示',
           ],
@@ -730,8 +782,8 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
         definition: {
           title: 'Reserve 的定义',
           intro: 'Reserve 是总供应量中最终长期保留的一部分，目标为：',
-          target: '≥ 40%',
-          targetNote: '（理想 50%）',
+          target: '≥ 50%',
+          targetNote: '（最低50%）',
           desc: '长期不进入市场流通',
         },
         methods: {
@@ -774,12 +826,18 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
           company: { percent: '50%', label: '公司运营收入' },
           buyback: { percent: '50%', label: '回购预算' },
         },
+        flywheel: {
+          title: '回购飞轮联动机制',
+          desc: '广告收入的 50% 用于回购。',
+          highlight: '回购的代币直接销毁，或注入 Reserve 延长协议寿命。',
+          mechanism: '这样在"日抛"增加供应的同时，通过回购减少供应，形成动态博弈平衡。',
+        },
         execution: {
           title: '回购执行',
           intro: '回购预算用于在市场上买回代币，回购所得代币用于：',
           uses: [
-            '再投流/生态激励',
-            '或（可选）销毁/再锁（由治理决定）',
+            '直接销毁（减少总供应量）',
+            '注入 Reserve（延长协议运营周期）',
           ],
           note: '回购执行可以先由中心化运营执行并链上公开记录，后续再升级为链上自动执行器。',
         },
@@ -824,6 +882,7 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
         terms: [
           { term: 'FDV', full: 'Fully Diluted Valuation', desc: '完全稀释估值 = 总供应量 × 价格' },
           { term: 'TWAP', full: 'Time-Weighted Average Price', desc: '时间加权平均价' },
+          { term: 'High-Water Mark', desc: '高水位机制，解锁参考历史最高 FDV' },
           { term: 'Unlock Pool', desc: '锁仓/解锁池，储存待释放代币的池' },
           { term: 'Treasury', desc: '国库金库，承接资金与预算拨付' },
           { term: 'Vault', desc: '用途金库（投流/内容/社区）' },
@@ -915,7 +974,7 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
             { category: 'LP 啟動流動性', percent: '2%', usage: '建立主交易池流動性（LP 鎖倉）' },
             { category: 'ICO 公開募集', percent: '8%', usage: '分三輪募資' },
             { category: 'Unlock Pool', percent: '90%', usage: '按市值里程碑逐步解鎖' },
-            { category: 'Reserve', percent: '≥40%', usage: '長期鎖定、降低無限稀釋風險' },
+            { category: 'Reserve', percent: '≥50%', usage: '長期鎖定、降低無限稀釋風險' },
           ],
         },
       },
@@ -964,20 +1023,27 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
           desc: '當 FDV 達到預設檔位時，Unlock Pool 的一部分變為「可解鎖額度」。',
           warning: '注意：達到里程碑並不意味著可以一次性釋放全部額度，最終釋放仍受「每日釋放上限」限制。',
         },
+        highWaterMark: {
+          title: '高水位機制 (High-Water Mark)',
+          rule: '市值解鎖只參考歷史最高 FDV（24h TWAP 平均值）',
+          reason: '防止幣價短期回調導致程序停止釋放，引發社區恐慌。',
+          note: '一旦解鎖權限獲得，即使幣價下跌，釋放權依然保留，但日釋放上限會因為 rate 的回升或 LP 的減小而自動調慢。',
+        },
         milestones: {
-          title: '里程碑示例表',
-          headers: ['FDV 達到', '累計可解鎖比例', '仍鎖倉比例'],
+          title: '敲定參數表：市值階梯與釋放速率',
+          headers: ['市值階段 (FDV)', '累計可解鎖上限', '剩餘鎖倉', '日釋放速率', '邏輯說明'],
           rows: [
-            { fdv: '$5M', unlockable: '5%', locked: '85%' },
-            { fdv: '$10M', unlockable: '10%', locked: '80%' },
-            { fdv: '$50M', unlockable: '20%', locked: '70%' },
-            { fdv: '$100M', unlockable: '30%', locked: '60%' },
+            { fdv: '<$5M', unlockable: '15% (含ICO)', locked: '85%', rate: '1.00%', logic: '早期需要流通量建立共識' },
+            { fdv: '$5M - $20M', unlockable: '20%', locked: '80%', rate: '0.50%', logic: '價格上升，收緊釋放百分比' },
+            { fdv: '$20M - $50M', unlockable: '30%', locked: '70%', rate: '0.33%', logic: '進入成長期，絕對金額增加' },
+            { fdv: '$50M - $100M', unlockable: '40%', locked: '60%', rate: '0.25%', logic: '穩定期，極致防拋壓' },
+            { fdv: '>$100M', unlockable: '50%', locked: '50%', rate: '0.20%', logic: '最終長期儲備形態' },
           ],
-          note: '注：該表為示例版本，最終檔位與比例以鏈上參數為準。仍鎖倉比例中包含最終 Reserve 目標（≥40–50%）。',
+          note: '注：該表基於鎖倉比例 (85%...50%) 和 rate 設計。最終參數以鏈上配置為準。',
         },
       },
       dailyCap: {
-        title: '每日釋放上限',
+        title: '每日釋放上限（日拋機制）',
         goals: {
           title: '設計目標',
           items: [
@@ -986,31 +1052,39 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
             '使投流預算與市場承受能力更匹配',
           ],
         },
+        executionFlow: {
+          title: '執行流程',
+          steps: [
+            { step: '里程碑檢測', desc: '合約每 24 小時檢查一次過去 24 小時的 TWAP 折算的 FDV' },
+            { step: '解鎖額度歸檔', desc: '如果 FDV 觸達新高（如從 $8M 漲到 $12M），系統自動將 unlockedRemaining 從 15% 提升至 20%' },
+            { step: '計算當日額度', desc: '基礎額度 = 當前 FDV 檔位對應的 rate × TotalSupply' },
+            { step: '安全校準', desc: '對比流動性池（LP）深度，確保拋壓不會瞬間擊穿盤面' },
+            { step: '執行釋放', desc: '將計算出的額度從鎖定合約撥付給對應賬戶' },
+          ],
+        },
         formula: {
           title: '核心公式',
           intro: '每日從 Unlock Pool 釋放到 Treasury 的最大額度（dailyCap）定義為：',
-          formula: 'dailyCap = min(unlockedRemaining, TotalSupply × rate, TotalSupply × 0.3%)',
+          formula: 'dailyCap = min(unlockedRemaining, TotalSupply × rate, LP_depth × k)',
           params: [
             { name: 'unlockedRemaining', desc: '當前已達里程碑下，剩餘可釋放額度' },
             { name: 'TotalSupply × rate', desc: '按 FDV 分段決定的動態釋放比例' },
-            { name: 'TotalSupply × 0.3%', desc: '全局硬上限（任何時候都不能超過）' },
+            { name: 'LP_depth × k', desc: '流動性安全係數，防止擊穿盤面' },
           ],
         },
-        rates: {
-          title: 'rate 分段（示例）',
-          headers: ['FDV 區間', 'rate（每日）'],
-          rows: [
-            { range: 'FDV ≤ $5M', rate: '1.00%' },
-            { range: '$5M < FDV ≤ $10M', rate: '0.50%' },
-            { range: '$10M < FDV ≤ $50M', rate: '0.33%' },
-            { range: 'FDV ≥ $100M', rate: '0.25%' },
+        priority: {
+          title: '「日拋」隊列優先級',
+          intro: '當 dailyCap 額度生成後，釋放順序為：',
+          items: [
+            { order: '第一', name: '創作者激勵 (Content Vault)', reason: '優先保證生態生產力的活躍' },
+            { order: '第二', name: 'ICO 投資者', reason: '兌現對早期支持者的承諾' },
+            { order: '第三', name: '團隊/儲備', reason: '最後釋放，增強外部信心' },
           ],
-          note: '說明：rate 越往後越低，確保項目體量變大後釋放更加克制。',
         },
         cooldown: {
           title: '頻率限制與冷卻',
           items: [
-            '每日/每 N 小時僅允許執行一次釋放（cooldown）',
+            '每 24 小時僅允許執行一次釋放（cooldown）',
             '超頻執行直接失敗',
             '所有釋放事件鏈上記錄，用於 Dashboard 展示',
           ],
@@ -1049,8 +1123,8 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
         definition: {
           title: 'Reserve 的定義',
           intro: 'Reserve 是總供應量中最終長期保留的一部分，目標為：',
-          target: '≥ 40%',
-          targetNote: '（理想 50%）',
+          target: '≥ 50%',
+          targetNote: '（最低50%）',
           desc: '長期不進入市場流通',
         },
         methods: {
@@ -1093,12 +1167,18 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
           company: { percent: '50%', label: '公司運營收入' },
           buyback: { percent: '50%', label: '回購預算' },
         },
+        flywheel: {
+          title: '回購飛輪聯動機制',
+          desc: '廣告收入的 50% 用於回購。',
+          highlight: '回購的代幣直接銷毀，或注入 Reserve 延長協議壽命。',
+          mechanism: '這樣在「日拋」增加供應的同時，通過回購減少供應，形成動態博弈平衡。',
+        },
         execution: {
           title: '回購執行',
           intro: '回購預算用於在市場上買回代幣，回購所得代幣用於：',
           uses: [
-            '再投流/生態激勵',
-            '或（可選）銷毀/再鎖（由治理決定）',
+            '直接銷毀（減少總供應量）',
+            '注入 Reserve（延長協議運營週期）',
           ],
           note: '回購執行可以先由中心化運營執行並鏈上公開記錄，後續再升級為鏈上自動執行器。',
         },
@@ -1143,6 +1223,7 @@ export const whitepaperContent: Record<Language, WhitepaperContent> = {
         terms: [
           { term: 'FDV', full: 'Fully Diluted Valuation', desc: '完全稀釋估值 = 總供應量 × 價格' },
           { term: 'TWAP', full: 'Time-Weighted Average Price', desc: '時間加權平均價' },
+          { term: 'High-Water Mark', desc: '高水位機制，解鎖參考歷史最高 FDV' },
           { term: 'Unlock Pool', desc: '鎖倉/解鎖池，儲存待釋放代幣的池' },
           { term: 'Treasury', desc: '國庫金庫，承接資金與預算撥付' },
           { term: 'Vault', desc: '用途金庫（投流/內容/社區）' },

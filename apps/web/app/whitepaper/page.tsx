@@ -319,22 +319,43 @@ export default function WhitepaperPage() {
                   <p className="text-amber-200/80 text-sm">{content.sections.unlock.mechanism.warning}</p>
                 </div>
 
+                {/* High-Water Mark */}
+                <h3 className="subsection-title">{content.sections.unlock.highWaterMark.title}</h3>
+                <div className="p-5 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/5 border border-cyan-500/20 mb-8">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-500/20 flex items-center justify-center">
+                      <span className="text-cyan-400 text-lg">📈</span>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-white font-medium">{content.sections.unlock.highWaterMark.rule}</p>
+                      <p className="text-white/60 text-sm">{content.sections.unlock.highWaterMark.reason}</p>
+                      <p className="text-cyan-300/70 text-sm italic">{content.sections.unlock.highWaterMark.note}</p>
+                    </div>
+                  </div>
+                </div>
+
                 <h3 className="subsection-title">{content.sections.unlock.milestones.title}</h3>
-                <div className="overflow-hidden rounded-xl border border-white/[0.06] mb-4">
-                  <table className="w-full text-sm">
+                <div className="overflow-x-auto rounded-xl border border-white/[0.06] mb-4">
+                  <table className="w-full text-sm min-w-[700px]">
                     <thead>
-                      <tr className="bg-white/[0.03]">
+                      <tr className="bg-gradient-to-r from-white/[0.05] to-white/[0.02]">
                         {content.sections.unlock.milestones.headers.map((h, i) => (
-                          <th key={i} className="p-4 text-white/60 font-medium text-center">{h}</th>
+                          <th key={i} className={`p-4 text-white/70 font-semibold ${i === 0 ? 'text-left' : 'text-center'}`}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {content.sections.unlock.milestones.rows.map((row, i) => (
                         <tr key={i} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-                          <td className="p-4 text-center font-mono font-bold text-rose-400">{row.fdv}</td>
-                          <td className="p-4 text-center text-emerald-400 font-semibold">{row.unlockable}</td>
+                          <td className="p-4 font-mono font-bold text-rose-400">{row.fdv}</td>
+                          <td className="p-4 text-center">
+                            <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">{row.unlockable}</span>
+                          </td>
                           <td className="p-4 text-center text-white/60">{row.locked}</td>
+                          <td className="p-4 text-center">
+                            <span className="inline-block px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-400 font-mono font-semibold">{row.rate}</span>
+                          </td>
+                          <td className="p-4 text-white/50 text-sm">{row.logic}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -359,6 +380,25 @@ export default function WhitepaperPage() {
                   ))}
                 </div>
 
+                {/* Execution Flow */}
+                <h3 className="subsection-title">{content.sections.dailyCap.executionFlow.title}</h3>
+                <div className="relative mb-10">
+                  <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-gradient-to-b from-rose-500 via-fuchsia-500 to-indigo-500 rounded-full" />
+                  <div className="space-y-4">
+                    {content.sections.dailyCap.executionFlow.steps.map((step, i) => (
+                      <div key={i} className="flex gap-5 pl-1">
+                        <div className="relative z-10 flex-shrink-0 h-12 w-12 rounded-xl bg-gradient-to-br from-rose-500/30 to-fuchsia-500/20 border border-white/10 flex items-center justify-center">
+                          <span className="text-sm font-bold text-white">{i + 1}</span>
+                        </div>
+                        <div className="flex-1 p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05]">
+                          <span className="text-white font-semibold">{step.step}</span>
+                          <p className="text-white/60 text-sm mt-1">{step.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <h3 className="subsection-title">{content.sections.dailyCap.formula.title}</h3>
                 <p className="text-white/70 mb-4">{content.sections.dailyCap.formula.intro}</p>
                 <div className="p-6 rounded-xl bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-rose-500/10 border border-white/[0.08] mb-6 overflow-x-auto">
@@ -373,29 +413,27 @@ export default function WhitepaperPage() {
                   ))}
                 </div>
 
-                <h3 className="subsection-title">{content.sections.dailyCap.rates.title}</h3>
-                <div className="overflow-hidden rounded-xl border border-white/[0.06] mb-4">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-white/[0.03]">
-                        {content.sections.dailyCap.rates.headers.map((h, i) => (
-                          <th key={i} className="p-4 text-white/60 font-medium text-left">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {content.sections.dailyCap.rates.rows.map((row, i) => (
-                        <tr key={i} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-                          <td className="p-4 text-white/80 font-mono">{row.range}</td>
-                          <td className="p-4">
-                            <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold font-mono">{row.rate}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                {/* Priority Queue */}
+                <h3 className="subsection-title">{content.sections.dailyCap.priority.title}</h3>
+                <p className="text-white/70 mb-4">{content.sections.dailyCap.priority.intro}</p>
+                <div className="grid gap-4 mb-10">
+                  {content.sections.dailyCap.priority.items.map((item, i) => {
+                    const colors = ['from-emerald-500/20 to-emerald-500/5 border-emerald-500/30', 'from-blue-500/20 to-blue-500/5 border-blue-500/30', 'from-slate-500/20 to-slate-500/5 border-slate-500/30'];
+                    const textColors = ['text-emerald-400', 'text-blue-400', 'text-slate-400'];
+                    return (
+                      <div key={i} className={`flex items-center gap-5 p-5 rounded-xl bg-gradient-to-r ${colors[i]} border`}>
+                        <div className={`flex-shrink-0 h-12 w-12 rounded-full bg-white/10 flex items-center justify-center ${textColors[i]} font-bold text-xl`}>
+                          {item.order}
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-white font-semibold">{item.name}</span>
+                          <p className="text-white/50 text-sm mt-1">{item.reason}</p>
+                        </div>
+                        <div className="text-white/20 text-2xl">→</div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <p className="text-white/40 text-sm italic mb-8">{content.sections.dailyCap.rates.note}</p>
 
                 <h3 className="subsection-title">{content.sections.dailyCap.cooldown.title}</h3>
                 <div className="space-y-2">
@@ -527,12 +565,34 @@ export default function WhitepaperPage() {
                   </div>
                 </div>
 
+                {/* Flywheel Mechanism */}
+                <h3 className="subsection-title">{content.sections.buyback.flywheel.title}</h3>
+                <div className="p-6 rounded-xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-rose-500/10 border border-amber-500/20 mb-10">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-amber-500/30 to-orange-500/20 flex items-center justify-center">
+                      <span className="text-2xl">🔄</span>
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold">{content.sections.buyback.flywheel.desc}</p>
+                      <p className="text-amber-300/80 text-sm mt-1">{content.sections.buyback.flywheel.highlight}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center gap-3 py-4 px-6 rounded-lg bg-white/[0.03] border border-white/[0.05]">
+                    <span className="text-rose-400 font-mono text-sm">日抛 (+供应)</span>
+                    <span className="text-white/30">⇄</span>
+                    <span className="text-emerald-400 font-mono text-sm">回购 (-供应)</span>
+                    <span className="text-white/30">=</span>
+                    <span className="text-amber-400 font-semibold">动态平衡</span>
+                  </div>
+                  <p className="text-white/50 text-sm mt-4 text-center">{content.sections.buyback.flywheel.mechanism}</p>
+                </div>
+
                 <h3 className="subsection-title">{content.sections.buyback.execution.title}</h3>
                 <p className="text-white/70 mb-3">{content.sections.buyback.execution.intro}</p>
-                <div className="space-y-2 mb-4">
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
                   {content.sections.buyback.execution.uses.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 text-white/70">
-                      <span className="text-rose-400">▸</span>
+                    <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] text-white/70">
+                      <span className={i === 0 ? 'text-red-400' : 'text-blue-400'}>{i === 0 ? '🔥' : '🔒'}</span>
                       <span>{item}</span>
                     </div>
                   ))}
