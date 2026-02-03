@@ -8,13 +8,19 @@ import { getLandingContent } from "@/lib/i18n/landing";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { shortenAddress } from "@/lib/solana";
 import { useWalletStore } from "@/lib/stores/walletStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function Header() {
   const { language } = useLanguage();
   const content = getLandingContent(language);
   const { publicKey, connected } = useWallet();
   const { setWallet, drapBalance } = useWalletStore();
+  const [mounted, setMounted] = useState(false);
+
+  // 确保客户端渲染后才显示钱包按钮，避免 hydration 错误
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 同步钱包状态到 store
   useEffect(() => {
@@ -51,18 +57,20 @@ export function Header() {
           {content.header.protocol}
         </button>
         
-        {/* Solana 钱包连接按钮 */}
-        <WalletMultiButton 
-          style={{
-            backgroundColor: connected ? 'transparent' : '#e50914',
-            border: connected ? '1px solid rgba(255,255,255,0.2)' : 'none',
-            borderRadius: '9999px',
-            padding: '8px 16px',
-            fontSize: '12px',
-            fontWeight: 600,
-            height: 'auto',
-          }}
-        />
+        {/* Solana 钱包连接按钮 - 仅在客户端挂载后渲染 */}
+        {mounted && (
+          <WalletMultiButton
+            style={{
+              backgroundColor: connected ? 'transparent' : '#e50914',
+              border: connected ? '1px solid rgba(255,255,255,0.2)' : 'none',
+              borderRadius: '9999px',
+              padding: '8px 16px',
+              fontSize: '12px',
+              fontWeight: 600,
+              height: 'auto',
+            }}
+          />
+        )}
       </div>
     </header>
   );

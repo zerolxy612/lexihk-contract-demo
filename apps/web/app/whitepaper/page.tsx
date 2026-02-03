@@ -4,395 +4,678 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { getWhitepaperContent } from "@/lib/i18n/whitepaper";
 import { ParticleBackground } from "../components/ParticleBackground";
 import { ScrollReveal } from "../components/ScrollReveal";
-import { TiltCard } from "../components/TiltCard";
 import { MagneticElement } from "../components/MagneticElement";
 import { CountUp } from "../components/CountUp";
+import { useState } from "react";
 
 export default function WhitepaperPage() {
   const { language } = useLanguage();
   const content = getWhitepaperContent(language);
-  
-  console.log('Whitepaper page loaded', { language, content });
+  const [activeSection, setActiveSection] = useState(0);
+
+  const handleTocClick = (index: number) => {
+    setActiveSection(index);
+    const element = document.getElementById(`section-${index + 1}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
-    <div className="relative overflow-hidden min-h-screen">
-      {/* Background layers */}
-      <div className="absolute inset-0 opacity-70 bg-gradient-to-b from-black via-[#0b0c12] to-[#06060a] animate-gradient" />
-      <ParticleBackground />
-      <div className="absolute -left-44 top-0 h-[430px] w-[430px] rounded-full bg-accent/25 blur-3xl animate-pulse" />
-      <div className="absolute right-[-18%] top-16 h-[340px] w-[340px] rounded-full bg-white/10 blur-[120px]" />
-      <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[150px] animate-pulse" style={{ animationDelay: "1s" }} />
-      <div className="aurora -left-10 top-10 h-[520px] w-[520px]" />
-      <div className="aurora right-0 top-44 h-[620px] w-[520px]" style={{ animationDelay: "0.8s" }} />
-      <div className="orb left-[15%] top-[30%] h-40 w-40" />
-      <div className="orb right-[12%] top-[18%] h-52 w-52" />
-      <div className="absolute inset-0 holo-grid" />
-      <div className="absolute inset-0 noise pointer-events-none" />
+    <div className="relative overflow-hidden min-h-screen bg-[#030305]">
+      {/* Sophisticated Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,rgba(120,119,198,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_80%_50%,rgba(255,107,107,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_20%_80%,rgba(78,205,196,0.08),transparent_50%)]" />
+        <ParticleBackground />
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+      </div>
 
-      <div className="relative max-w-5xl mx-auto px-5 sm:px-8 py-16 lg:py-24 space-y-16">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         {/* Hero Section */}
-        <section className="text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-accent/30">
-            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-xs uppercase tracking-[0.3em] text-accent">{content.hero.badge}</span>
-          </div>
-          <MagneticElement strength={0.08}>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight text-white drop-shadow-[0_20px_70px_rgba(229,9,20,0.4)]">
-              {content.hero.title}
-              <span className="block text-accent mt-3 glitch glow-pulse" data-text={content.hero.subtitle}>
-                {content.hero.subtitle}
-              </span>
-            </h1>
-          </MagneticElement>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
-            {content.hero.description}
-          </p>
+        <section className="text-center mb-20 pt-8">
+          <ScrollReveal>
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-white/5 to-white/10 border border-white/10 backdrop-blur-sm mb-8">
+              <div className="relative">
+                <span className="absolute inset-0 rounded-full bg-emerald-500 blur-md animate-pulse" />
+                <span className="relative h-2.5 w-2.5 rounded-full bg-emerald-400 block" />
+              </div>
+              <span className="text-sm font-medium text-white/80 tracking-wide">{content.meta.badge}</span>
+              <span className="text-white/30">·</span>
+              <span className="text-sm font-mono text-emerald-400">{content.meta.version}</span>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={100}>
+            <MagneticElement strength={0.05}>
+              <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight mb-6">
+                <span className="bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">
+                  {content.hero.title}
+                </span>
+                <span className="block mt-2 text-3xl sm:text-4xl lg:text-5xl bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
+                  {content.hero.subtitle}
+                </span>
+              </h1>
+            </MagneticElement>
+          </ScrollReveal>
+
+          <ScrollReveal delay={200}>
+            <p className="text-lg sm:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+              {content.hero.description}
+            </p>
+          </ScrollReveal>
+
+          {/* Decorative Stats */}
+          <ScrollReveal delay={300}>
+            <div className="flex flex-wrap justify-center gap-8 mt-12">
+              {[
+                { value: 130000, label: 'USDC', prefix: '$' },
+                { value: 90, label: 'Unlock Pool', suffix: '%' },
+                { value: 12, label: 'LP Lock', suffix: ' mo' },
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-3xl sm:text-4xl font-bold font-mono bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+                    {stat.prefix}<CountUp end={stat.value} duration={2000} />{stat.suffix}
+                  </div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/40 mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
         </section>
 
-        {/* Genesis Node Section */}
-        <ScrollReveal>
-          <section className="glass-veil rounded-3xl p-8 sm:p-10 border border-white/10 space-y-8">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(229,9,20,0.15),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.08),transparent_30%)] opacity-40 rounded-3xl" />
-            <div className="relative">
-              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-3">{content.genesis.tag}</p>
-              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white mb-6">
-                {content.genesis.title}
-              </h2>
-              
-              {/* Genesis Node Visualization */}
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <div className="relative">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-accent/50 to-white/20 rounded-2xl blur-lg opacity-40" />
-                  <div className="relative glass rounded-2xl p-6 border border-accent/40 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-accent to-red-600 grid place-items-center text-white text-2xl font-bold shadow-[0_10px_40px_rgba(229,9,20,0.5)] pulse-glow">
-                        G₁
-                      </div>
-                      <div>
-                        <p className="text-white font-semibold text-lg">{content.genesis.node1.title}</p>
-                        <p className="text-white/60 text-sm">{content.genesis.node1.subtitle}</p>
-                      </div>
-                    </div>
-                    <p className="text-white/80 leading-relaxed">{content.genesis.node1.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {content.genesis.node1.features.map((feature) => (
-                        <span key={feature} className="px-3 py-1 rounded-full text-xs bg-accent/20 border border-accent/30 text-accent">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Floating TOC - Sidebar */}
+          <aside className="lg:w-64 flex-shrink-0">
+            <div className="lg:sticky lg:top-8">
+              <ScrollReveal>
+                <div className="backdrop-blur-xl bg-white/[0.02] rounded-2xl border border-white/[0.05] overflow-hidden">
+                  <div className="px-5 py-4 border-b border-white/[0.05] bg-gradient-to-r from-white/[0.03] to-transparent">
+                    <h2 className="text-sm font-semibold text-white/80 uppercase tracking-[0.15em]">{content.toc.title}</h2>
                   </div>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-accent/30 rounded-2xl blur-lg opacity-30" />
-                  <div className="relative glass rounded-2xl p-6 border border-white/20 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-steel to-carbon grid place-items-center text-white text-2xl font-bold border border-white/20">
-                        G₂
-                      </div>
-                      <div>
-                        <p className="text-white font-semibold text-lg">{content.genesis.node2.title}</p>
-                        <p className="text-white/60 text-sm">{content.genesis.node2.subtitle}</p>
-                      </div>
-                    </div>
-                    <p className="text-white/80 leading-relaxed">{content.genesis.node2.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {content.genesis.node2.features.map((feature) => (
-                        <span key={feature} className="px-3 py-1 rounded-full text-xs bg-white/10 border border-white/20 text-white/70">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Connection Flow */}
-              <div className="relative py-6">
-                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-accent via-white/30 to-accent" />
-                <div className="relative flex justify-center">
-                  <div className="glass-veil rounded-2xl px-6 py-4 border border-accent/30 flex items-center gap-4">
-                    <div className="text-accent text-2xl">⟳</div>
-                    <div>
-                      <p className="text-white font-semibold">{content.genesis.threshold.title}</p>
-                      <p className="text-white/60 text-sm">{content.genesis.threshold.description}</p>
-                    </div>
-                    <div className="text-3xl font-display text-white font-bold">
-                      <CountUp end={400} duration={2000} suffix="×" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </ScrollReveal>
-
-        {/* Interactive Drama Evolution */}
-        <ScrollReveal>
-          <section className="space-y-8">
-            <div className="text-center">
-              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-3">{content.evolution.tag}</p>
-              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white">
-                {content.evolution.title}
-              </h2>
-            </div>
-
-            {/* 3-Choice Branching Visualization */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(229,9,20,0.1),transparent_50%)]" />
-              <div className="relative glass rounded-3xl p-8 border border-white/10">
-                <div className="grid gap-8">
-                  {/* Central Node */}
-                  <div className="flex justify-center">
-                    <TiltCard tiltMaxAngle={8} className="glass-veil rounded-2xl p-6 border border-accent/40 max-w-sm text-center spotlight">
-                      <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-accent to-red-600 grid place-items-center text-white text-xl font-bold shadow-[0_10px_40px_rgba(229,9,20,0.5)]">
-                        ▶
-                      </div>
-                      <p className="text-white font-semibold text-lg">{content.evolution.currentFrame.title}</p>
-                      <p className="text-white/60 text-sm mt-1">{content.evolution.currentFrame.description}</p>
-                    </TiltCard>
-                  </div>
-
-                  {/* Branch Lines */}
-                  <div className="flex justify-center gap-4 sm:gap-8">
-                    <div className="h-12 w-px bg-gradient-to-b from-accent to-transparent" />
-                    <div className="h-12 w-px bg-gradient-to-b from-accent to-transparent" />
-                    <div className="h-12 w-px bg-gradient-to-b from-accent to-transparent" />
-                  </div>
-
-                  {/* 3 Choice Cards */}
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {content.evolution.choices.map((choice, index) => (
-                      <TiltCard
-                        key={choice.id}
-                        tiltMaxAngle={10}
-                        glareEnable={true}
-                        className="glass rounded-2xl p-5 border border-white/15 hover:border-accent/50 transition-all duration-300 cursor-pointer flowing-border spotlight group"
+                  <nav className="p-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    {content.toc.items.map((item, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleTocClick(i)}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex items-center gap-3 group ${
+                          activeSection === i 
+                            ? 'bg-gradient-to-r from-rose-500/20 to-fuchsia-500/10 text-white' 
+                            : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+                        }`}
                       >
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className={`h-10 w-10 rounded-lg grid place-items-center text-white font-bold ${
-                            index === 0 ? 'bg-gradient-to-br from-red-500 to-orange-600' :
-                            index === 1 ? 'bg-gradient-to-br from-purple-500 to-pink-600' :
-                            'bg-gradient-to-br from-blue-500 to-cyan-600'
-                          }`}>
-                            {choice.id}
-                          </div>
-                          <span className="text-xs uppercase tracking-wider text-white/50">{choice.label}</span>
-                        </div>
-                        <p className="text-white font-medium mb-2">{choice.title}</p>
-                        <p className="text-white/60 text-sm leading-relaxed">{choice.description}</p>
-                        <div className="mt-3 flex items-center gap-2 text-accent text-sm group-hover:translate-x-1 transition-transform">
-                          <span>{choice.action}</span>
-                          <span>→</span>
-                        </div>
-                      </TiltCard>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Loop Indicator */}
-            <div className="flex justify-center">
-              <div className="glass-veil rounded-full px-6 py-3 border border-white/20 flex items-center gap-4">
-                <span className="text-2xl animate-spin" style={{ animationDuration: '3s' }}>⟳</span>
-                <span className="text-white/80">{content.evolution.loopText}</span>
-                <span className="text-accent font-semibold">{content.evolution.mintTrigger}</span>
-              </div>
-            </div>
-          </section>
-        </ScrollReveal>
-
-        {/* Premium HD Section */}
-        <ScrollReveal>
-          <section className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-r from-accent/20 via-transparent to-accent/20 rounded-[40px] blur-2xl" />
-            <div className="relative rounded-3xl p-8 sm:p-10 bg-gradient-to-b from-accent/15 via-[#0a0b10] to-[#0a0b10] border border-accent/30 shadow-[0_30px_90px_rgba(229,9,20,0.2)]">
-              <div className="scan-line absolute inset-0 rounded-3xl" />
-              
-              <div className="relative grid lg:grid-cols-2 gap-8 items-center">
-                <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/20 border border-accent/40">
-                    <span className="text-accent text-sm">✦</span>
-                    <span className="text-xs uppercase tracking-[0.2em] text-accent">{content.premium.badge}</span>
-                  </div>
-                  
-                  <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white">
-                    {content.premium.title}
-                  </h2>
-                  
-                  <p className="text-white/80 leading-relaxed">
-                    {content.premium.description}
-                  </p>
-
-                  <div className="space-y-3">
-                    {content.premium.features.map((feature, index) => (
-                      <div key={index} className="flex items-start gap-3 group">
-                        <span className="mt-1 h-2 w-2 rounded-full bg-accent shadow-[0_0_0_4px_rgba(229,9,20,0.2)] group-hover:shadow-[0_0_0_6px_rgba(229,9,20,0.4)] transition-all" />
-                        <p className="text-white/80 group-hover:text-white transition-colors">{feature}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute -inset-2 bg-gradient-to-br from-accent/30 to-white/10 rounded-2xl blur-xl" />
-                  <div className="relative glass rounded-2xl p-6 border border-white/20 space-y-6">
-                    <div className="text-center">
-                      <p className="text-xs uppercase tracking-[0.2em] text-white/50 mb-2">{content.premium.pricing.label}</p>
-                      <div className="flex items-center justify-center gap-3">
-                        <span className="text-4xl font-display font-bold text-white">10×</span>
-                        <span className="text-white/50">~</span>
-                        <span className="text-4xl font-display font-bold text-accent">100×</span>
-                      </div>
-                      <p className="text-white/60 text-sm mt-2">{content.premium.pricing.subtitle}</p>
-                    </div>
-
-                    <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center">
-                        <p className="text-2xl font-bold text-white">T+1</p>
-                        <p className="text-white/60 text-xs uppercase tracking-wider mt-1">{content.premium.delivery.title}</p>
-                      </div>
-                      <div className="rounded-xl bg-accent/10 border border-accent/30 p-4 text-center">
-                        <p className="text-2xl font-bold text-accent">4K</p>
-                        <p className="text-white/60 text-xs uppercase tracking-wider mt-1">{content.premium.quality.title}</p>
-                      </div>
-                    </div>
-
-                    <MagneticElement strength={0.15}>
-                      <button className="w-full py-4 rounded-xl bg-gradient-to-r from-accent via-red-500 to-accent text-white font-semibold shadow-[0_20px_60px_rgba(229,9,20,0.4)] hover:scale-[1.02] transition glow-pulse">
-                        {content.premium.cta}
-                      </button>
-                    </MagneticElement>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </ScrollReveal>
-
-        {/* Economic Flow */}
-        <ScrollReveal>
-          <section className="glass rounded-3xl p-8 sm:p-10 border border-white/10 space-y-8">
-            <div className="text-center">
-              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-3">{content.economics.tag}</p>
-              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white">
-                {content.economics.title}
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-4">
-              {content.economics.steps.map((step, index) => (
-                <TiltCard
-                  key={step.id}
-                  tiltMaxAngle={8}
-                  className="relative glass-veil rounded-2xl p-5 border border-white/10 hover:border-accent/40 transition-all duration-300 spotlight"
-                >
-                  {index < content.economics.steps.length - 1 && (
-                    <div className="hidden md:block absolute -right-2 top-1/2 -translate-y-1/2 text-accent text-xl z-10">→</div>
-                  )}
-                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-accent/30 to-white/10 border border-white/20 grid place-items-center text-white font-bold mb-4">
-                    {step.id}
-                  </div>
-                  <p className="text-white font-semibold mb-2">{step.title}</p>
-                  <p className="text-white/60 text-sm leading-relaxed">{step.description}</p>
-                </TiltCard>
-              ))}
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6">
-              {content.economics.stats.map((stat) => (
-                <div key={stat.label} className="glass rounded-xl p-4 text-center border border-white/10 hover:border-accent/30 transition-all">
-                  <p className="text-2xl font-display font-bold text-white">
-                    <CountUp end={stat.value} duration={2000} suffix={stat.suffix} />
-                  </p>
-                  <p className="text-white/60 text-xs uppercase tracking-[0.15em] mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        </ScrollReveal>
-
-        {/* Technical Architecture */}
-        <ScrollReveal>
-          <section className="space-y-8">
-            <div className="text-center">
-              <p className="text-xs uppercase tracking-[0.3em] text-accent mb-3">{content.architecture.tag}</p>
-              <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white">
-                {content.architecture.title}
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-5">
-              {content.architecture.layers.map((layer, index) => (
-                <ScrollReveal key={layer.title} delay={index * 100}>
-                  <TiltCard
-                    tiltMaxAngle={10}
-                    glareEnable={true}
-                    className="glass rounded-2xl p-6 border border-white/10 hover:border-accent/50 transition-all duration-500 h-full flowing-border spotlight"
-                  >
-                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-accent/40 to-white/10 border border-white/20 grid place-items-center text-xl mb-4">
-                      {layer.icon}
-                    </div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-accent mb-2">{layer.tag}</p>
-                    <h3 className="text-xl font-semibold text-white mb-3">{layer.title}</h3>
-                    <p className="text-white/70 leading-relaxed mb-4">{layer.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {layer.techs.map((tech) => (
-                        <span key={tech} className="px-2 py-1 rounded text-xs bg-white/5 border border-white/10 text-white/60">
-                          {tech}
+                        <span className={`font-mono text-xs w-5 ${activeSection === i ? 'text-rose-400' : 'text-white/30 group-hover:text-white/50'}`}>
+                          {String(i + 1).padStart(2, '0')}
                         </span>
-                      ))}
-                    </div>
-                  </TiltCard>
-                </ScrollReveal>
-              ))}
+                        <span className="truncate">{item}</span>
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </ScrollReveal>
             </div>
-          </section>
-        </ScrollReveal>
+          </aside>
 
-        {/* CTA Section */}
-        <ScrollReveal>
-          <section className="relative rounded-3xl p-10 sm:p-14 bg-gradient-to-b from-accent/20 via-red-600/10 to-[#0a0b10] border border-accent/30 shadow-[0_30px_90px_rgba(229,9,20,0.28)] text-center">
-            <div className="scan-line absolute inset-0 rounded-3xl" />
-            <div className="relative space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-display font-bold text-white">
-                {content.cta.title}
-              </h2>
-              <p className="text-white/70 max-w-xl mx-auto leading-relaxed">
-                {content.cta.description}
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <MagneticElement strength={0.2}>
-                  <button className="px-8 py-4 rounded-full bg-gradient-to-r from-accent via-red-500 to-white text-white font-semibold shadow-[0_20px_60px_rgba(229,9,20,0.5)] hover:scale-[1.05] transition glow-pulse">
-                    {content.cta.primary}
-                  </button>
-                </MagneticElement>
-                <MagneticElement strength={0.15}>
-                  <button className="px-8 py-4 rounded-full border border-white/30 text-white hover:border-accent hover:bg-accent/10 transition">
-                    {content.cta.secondary}
-                  </button>
-                </MagneticElement>
-              </div>
-            </div>
-          </section>
-        </ScrollReveal>
+          {/* Main Content */}
+          <main className="flex-1 min-w-0 space-y-8">
+            {/* Section 1: Overview */}
+            <ScrollReveal>
+              <section id="section-1" className="content-section group">
+                <SectionHeader number="01" title={content.sections.overview.title} />
+                <p className="text-white/70 leading-relaxed mb-8">{content.sections.overview.intro}</p>
+                
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <span className="h-1 w-6 bg-gradient-to-r from-rose-500 to-fuchsia-500 rounded-full" />
+                    {content.sections.overview.goals.title}
+                  </h3>
+                  <div className="grid gap-3">
+                    {content.sections.overview.goals.items.map((item, i) => (
+                      <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.05] hover:border-white/10 transition-colors">
+                        <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-rose-500/20 to-fuchsia-500/20 flex items-center justify-center">
+                          <span className="text-rose-400 text-sm font-bold">{i + 1}</span>
+                        </div>
+                        <p className="text-white/70 pt-1">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 2: Roles */}
+            <ScrollReveal>
+              <section id="section-2" className="content-section">
+                <SectionHeader number="02" title={content.sections.roles.title} />
+                
+                <h3 className="subsection-title">{content.sections.roles.rolesTitle}</h3>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+                  {content.sections.roles.roles.map((role, i) => (
+                    <div key={i} className="group relative p-5 rounded-xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/[0.06] hover:border-white/15 transition-all duration-300 hover:-translate-y-0.5">
+                      <div className="absolute top-4 right-4 text-4xl font-bold text-white/[0.03] font-mono">{String(i + 1).padStart(2, '0')}</div>
+                      <h4 className="text-white font-semibold mb-2">{role.name}</h4>
+                      <p className="text-white/50 text-sm leading-relaxed">{role.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="subsection-title">{content.sections.roles.flowTitle}</h3>
+                <div className="relative">
+                  <div className="absolute left-[19px] top-8 bottom-8 w-px bg-gradient-to-b from-rose-500/50 via-fuchsia-500/50 to-indigo-500/50" />
+                  <div className="space-y-4">
+                    {content.sections.roles.flows.map((flow, i) => (
+                      <div key={i} className="flex items-start gap-5 pl-1">
+                        <div className="relative z-10 flex-shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-rose-500/20 to-fuchsia-500/20 border border-white/10 flex items-center justify-center">
+                          <span className="text-sm font-bold text-white/80">{i + 1}</span>
+                        </div>
+                        <p className="text-white/70 pt-2">{flow}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 3: Tokenomics */}
+            <ScrollReveal>
+              <section id="section-3" className="content-section">
+                <SectionHeader number="03" title={content.sections.tokenomics.title} />
+                
+                <h3 className="subsection-title">{content.sections.tokenomics.params.title}</h3>
+                <div className="grid grid-cols-3 gap-4 mb-10">
+                  {content.sections.tokenomics.params.items.map((item, i) => (
+                    <div key={i} className="text-center p-5 rounded-xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.06]">
+                      <div className="text-xs uppercase tracking-[0.15em] text-white/40 mb-2">{item.label}</div>
+                      <div className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-1">{item.value}</div>
+                      <div className="text-xs text-white/40">{item.desc}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="subsection-title">{content.sections.tokenomics.distribution.title}</h3>
+                <div className="overflow-hidden rounded-xl border border-white/[0.06]">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-white/[0.03]">
+                        <th className="text-left p-4 text-white/60 font-medium">Category</th>
+                        <th className="text-center p-4 text-white/60 font-medium">%</th>
+                        <th className="text-left p-4 text-white/60 font-medium">Usage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.sections.tokenomics.distribution.items.map((item, i) => (
+                        <tr key={i} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                          <td className="p-4 text-white/80 font-medium">{item.category}</td>
+                          <td className="p-4 text-center">
+                            <span className="inline-block px-3 py-1 rounded-full bg-gradient-to-r from-rose-500/20 to-fuchsia-500/20 text-rose-400 font-bold font-mono text-sm">
+                              {item.percent}
+                            </span>
+                          </td>
+                          <td className="p-4 text-white/60">{item.usage}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-white/40 text-sm mt-4 italic pl-4 border-l-2 border-white/10">{content.sections.tokenomics.distribution.note}</p>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 4: ICO */}
+            <ScrollReveal>
+              <section id="section-4" className="content-section">
+                <SectionHeader number="04" title={content.sections.ico.title} />
+                
+                <h3 className="subsection-title">{content.sections.ico.rounds.title}</h3>
+                <div className="overflow-hidden rounded-xl border border-white/[0.06] mb-10">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-white/[0.03]">
+                        {content.sections.ico.rounds.headers.map((h, i) => (
+                          <th key={i} className={`p-4 text-white/60 font-medium ${i === 0 ? 'text-left' : 'text-center'}`}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.sections.ico.rounds.rows.map((row, i) => (
+                        <tr key={i} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                          <td className="p-4 text-white/80 font-mono font-bold">{row.round}</td>
+                          <td className="p-4 text-center text-white/70">{row.percent}</td>
+                          <td className="p-4 text-center">
+                            <span className="font-mono text-emerald-400">${row.amount}</span>
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="border-t-2 border-white/10 bg-gradient-to-r from-emerald-500/10 to-teal-500/5">
+                        <td className="p-4 text-white font-bold">{content.sections.ico.rounds.total.label}</td>
+                        <td className="p-4 text-center text-white font-bold">{content.sections.ico.rounds.total.percent}</td>
+                        <td className="p-4 text-center">
+                          <span className="font-mono text-lg font-bold text-emerald-400">${content.sections.ico.rounds.total.amount}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <h3 className="subsection-title">{content.sections.ico.budget.title}</h3>
+                <div className="grid gap-4">
+                  {content.sections.ico.budget.items.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-5 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.06] hover:border-white/10 transition-all group">
+                      <div>
+                        <h4 className="text-white font-semibold mb-1">{item.usage}</h4>
+                        <p className="text-white/50 text-sm">{item.desc}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-2xl font-bold font-mono bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                          ${item.amount}
+                        </span>
+                        <span className="block text-xs text-white/40 mt-1">USDC</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-white/40 text-sm mt-4 italic pl-4 border-l-2 border-emerald-500/30">{content.sections.ico.budget.note}</p>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 5: FDV */}
+            <ScrollReveal>
+              <section id="section-5" className="content-section">
+                <SectionHeader number="05" title={content.sections.fdv.title} />
+                <p className="text-white/70 leading-relaxed mb-8">{content.sections.fdv.intro}</p>
+                
+                <h3 className="subsection-title">{content.sections.fdv.definition.title}</h3>
+                <div className="p-6 rounded-xl bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-rose-500/10 border border-white/[0.08] mb-4">
+                  <code className="text-xl sm:text-2xl font-mono font-bold text-white">{content.sections.fdv.definition.formula}</code>
+                </div>
+                <p className="text-white/50 text-sm mb-8 pl-4 border-l-2 border-indigo-500/50">{content.sections.fdv.definition.note}</p>
+
+                <h3 className="subsection-title">{content.sections.fdv.oracle.title}</h3>
+                <p className="text-white/70 mb-4">{content.sections.fdv.oracle.intro}</p>
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/20">
+                    <span className="text-xs uppercase tracking-[0.15em] text-rose-400 font-semibold">{content.sections.fdv.oracle.primary.label}</span>
+                    <p className="text-white/70 mt-2">{content.sections.fdv.oracle.primary.desc}</p>
+                  </div>
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.08]">
+                    <span className="text-xs uppercase tracking-[0.15em] text-white/50 font-semibold">{content.sections.fdv.oracle.secondary.label}</span>
+                    <p className="text-white/60 mt-2">{content.sections.fdv.oracle.secondary.desc}</p>
+                  </div>
+                </div>
+                <p className="text-white/40 text-sm italic">{content.sections.fdv.oracle.purpose}</p>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 6: Unlock */}
+            <ScrollReveal>
+              <section id="section-6" className="content-section">
+                <SectionHeader number="06" title={content.sections.unlock.title} />
+                
+                <h3 className="subsection-title">{content.sections.unlock.mechanism.title}</h3>
+                <p className="text-white/70 mb-4">{content.sections.unlock.mechanism.desc}</p>
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-8 flex items-start gap-3">
+                  <span className="text-amber-400 text-lg">⚠</span>
+                  <p className="text-amber-200/80 text-sm">{content.sections.unlock.mechanism.warning}</p>
+                </div>
+
+                <h3 className="subsection-title">{content.sections.unlock.milestones.title}</h3>
+                <div className="overflow-hidden rounded-xl border border-white/[0.06] mb-4">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-white/[0.03]">
+                        {content.sections.unlock.milestones.headers.map((h, i) => (
+                          <th key={i} className="p-4 text-white/60 font-medium text-center">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.sections.unlock.milestones.rows.map((row, i) => (
+                        <tr key={i} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                          <td className="p-4 text-center font-mono font-bold text-rose-400">{row.fdv}</td>
+                          <td className="p-4 text-center text-emerald-400 font-semibold">{row.unlockable}</td>
+                          <td className="p-4 text-center text-white/60">{row.locked}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-white/40 text-sm italic">{content.sections.unlock.milestones.note}</p>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 7: Daily Cap */}
+            <ScrollReveal>
+              <section id="section-7" className="content-section">
+                <SectionHeader number="07" title={content.sections.dailyCap.title} />
+                
+                <h3 className="subsection-title">{content.sections.dailyCap.goals.title}</h3>
+                <div className="grid gap-3 mb-10">
+                  {content.sections.dailyCap.goals.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                      <span className="h-2 w-2 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500" />
+                      <p className="text-white/70">{item}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="subsection-title">{content.sections.dailyCap.formula.title}</h3>
+                <p className="text-white/70 mb-4">{content.sections.dailyCap.formula.intro}</p>
+                <div className="p-6 rounded-xl bg-gradient-to-r from-indigo-500/10 via-fuchsia-500/10 to-rose-500/10 border border-white/[0.08] mb-6 overflow-x-auto">
+                  <code className="text-base sm:text-lg font-mono font-bold text-white whitespace-nowrap">{content.sections.dailyCap.formula.formula}</code>
+                </div>
+                <div className="grid sm:grid-cols-3 gap-4 mb-10">
+                  {content.sections.dailyCap.formula.params.map((param, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+                      <code className="text-xs font-mono text-fuchsia-400 block mb-2">{param.name}</code>
+                      <p className="text-white/60 text-sm">{param.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="subsection-title">{content.sections.dailyCap.rates.title}</h3>
+                <div className="overflow-hidden rounded-xl border border-white/[0.06] mb-4">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-white/[0.03]">
+                        {content.sections.dailyCap.rates.headers.map((h, i) => (
+                          <th key={i} className="p-4 text-white/60 font-medium text-left">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.sections.dailyCap.rates.rows.map((row, i) => (
+                        <tr key={i} className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                          <td className="p-4 text-white/80 font-mono">{row.range}</td>
+                          <td className="p-4">
+                            <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold font-mono">{row.rate}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-white/40 text-sm italic mb-8">{content.sections.dailyCap.rates.note}</p>
+
+                <h3 className="subsection-title">{content.sections.dailyCap.cooldown.title}</h3>
+                <div className="space-y-2">
+                  {content.sections.dailyCap.cooldown.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-white/70">
+                      <span className="text-rose-400">▸</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 8: Treasury */}
+            <ScrollReveal>
+              <section id="section-8" className="content-section">
+                <SectionHeader number="08" title={content.sections.treasury.title} />
+                
+                <h3 className="subsection-title">{content.sections.treasury.duties.title}</h3>
+                <div className="grid gap-2 mb-10">
+                  {content.sections.treasury.duties.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 text-white/70">
+                      <span className="h-6 w-6 rounded-md bg-white/5 flex items-center justify-center text-xs font-mono text-white/50">{i + 1}</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="subsection-title">{content.sections.treasury.vaults.title}</h3>
+                <div className="grid sm:grid-cols-3 gap-4 mb-10">
+                  {content.sections.treasury.vaults.items.map((vault, i) => {
+                    const colors = {
+                      blue: 'from-blue-500/20 to-blue-500/5 border-blue-500/30 text-blue-400',
+                      green: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/30 text-emerald-400',
+                      purple: 'from-purple-500/20 to-purple-500/5 border-purple-500/30 text-purple-400',
+                    }[vault.color] || 'from-white/10 to-white/5 border-white/20 text-white/80';
+                    return (
+                      <div key={i} className={`p-5 rounded-xl bg-gradient-to-br ${colors.split(' ').slice(0, 2).join(' ')} border ${colors.split(' ')[2]} text-center`}>
+                        <span className={`text-xs uppercase tracking-[0.15em] font-semibold ${colors.split(' ')[3]}`}>{vault.name}</span>
+                        <p className="text-white/70 mt-2">{vault.purpose}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <h3 className="subsection-title">{content.sections.treasury.transparency.title}</h3>
+                <div className="space-y-2">
+                  {content.sections.treasury.transparency.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-white/70">
+                      <span className="text-emerald-400">✓</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 9: Reserve */}
+            <ScrollReveal>
+              <section id="section-9" className="content-section">
+                <SectionHeader number="09" title={content.sections.reserve.title} />
+                
+                <h3 className="subsection-title">{content.sections.reserve.definition.title}</h3>
+                <p className="text-white/70 mb-4">{content.sections.reserve.definition.intro}</p>
+                <div className="p-8 rounded-xl bg-gradient-to-r from-rose-500/10 via-fuchsia-500/10 to-indigo-500/10 border border-white/[0.08] text-center mb-4">
+                  <span className="text-5xl font-bold bg-gradient-to-r from-rose-400 to-fuchsia-400 bg-clip-text text-transparent">{content.sections.reserve.definition.target}</span>
+                  <span className="text-white/50 ml-2">{content.sections.reserve.definition.targetNote}</span>
+                  <p className="text-white/50 mt-3">{content.sections.reserve.definition.desc}</p>
+                </div>
+
+                <h3 className="subsection-title">{content.sections.reserve.methods.title}</h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/20">
+                    <span className="text-rose-400 font-semibold">{content.sections.reserve.methods.hardLock.title}</span>
+                    <p className="text-white/60 mt-2 text-sm">{content.sections.reserve.methods.hardLock.desc}</p>
+                    <p className="text-emerald-400 text-xs mt-3">{content.sections.reserve.methods.hardLock.recommend}</p>
+                  </div>
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.08]">
+                    <span className="text-white/80 font-semibold">{content.sections.reserve.methods.multisig.title}</span>
+                    <p className="text-white/60 mt-2 text-sm">{content.sections.reserve.methods.multisig.desc}</p>
+                    <p className="text-white/40 text-xs mt-3">{content.sections.reserve.methods.multisig.recommend}</p>
+                  </div>
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 10: Liquidity */}
+            <ScrollReveal>
+              <section id="section-10" className="content-section">
+                <SectionHeader number="10" title={content.sections.liquidity.title} />
+                
+                <h3 className="subsection-title">{content.sections.liquidity.launch.title}</h3>
+                <p className="text-white/70 mb-8">{content.sections.liquidity.launch.desc}</p>
+
+                <h3 className="subsection-title">{content.sections.liquidity.lock.title}</h3>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 border border-indigo-500/30">
+                    <span className="text-3xl font-bold font-mono text-white">{content.sections.liquidity.lock.duration}</span>
+                  </div>
+                  <p className="text-white/60">{content.sections.liquidity.lock.durationNote}</p>
+                </div>
+                <p className="text-white/70 mb-3">{content.sections.liquidity.lock.requirements}</p>
+                <div className="space-y-2">
+                  {content.sections.liquidity.lock.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-white/70">
+                      <span className="text-indigo-400">▸</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 11: Buyback */}
+            <ScrollReveal>
+              <section id="section-11" className="content-section">
+                <SectionHeader number="11" title={content.sections.buyback.title} />
+                
+                <h3 className="subsection-title">{content.sections.buyback.distribution.title}</h3>
+                <p className="text-white/70 mb-4">{content.sections.buyback.distribution.intro}</p>
+                <div className="grid sm:grid-cols-2 gap-4 mb-10">
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 text-center">
+                    <span className="text-4xl font-bold text-emerald-400">{content.sections.buyback.distribution.company.percent}</span>
+                    <p className="text-white/60 mt-2">{content.sections.buyback.distribution.company.label}</p>
+                  </div>
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/20 text-center">
+                    <span className="text-4xl font-bold text-rose-400">{content.sections.buyback.distribution.buyback.percent}</span>
+                    <p className="text-white/60 mt-2">{content.sections.buyback.distribution.buyback.label}</p>
+                  </div>
+                </div>
+
+                <h3 className="subsection-title">{content.sections.buyback.execution.title}</h3>
+                <p className="text-white/70 mb-3">{content.sections.buyback.execution.intro}</p>
+                <div className="space-y-2 mb-4">
+                  {content.sections.buyback.execution.uses.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-white/70">
+                      <span className="text-rose-400">▸</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-white/40 text-sm italic">{content.sections.buyback.execution.note}</p>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 12: Governance */}
+            <ScrollReveal>
+              <section id="section-12" className="content-section">
+                <SectionHeader number="12" title={content.sections.governance.title} />
+                
+                <h3 className="subsection-title">{content.sections.governance.multisig.title}</h3>
+                <div className="space-y-2 mb-10">
+                  {content.sections.governance.multisig.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-white/70">
+                      <span className="text-fuchsia-400">✓</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="subsection-title">{content.sections.governance.pause.title}</h3>
+                <div className="p-5 rounded-xl bg-gradient-to-r from-red-500/10 to-orange-500/5 border border-red-500/20">
+                  <p className="text-white/70 mb-2">{content.sections.governance.pause.trigger}</p>
+                  <p className="text-red-300/80 text-sm">{content.sections.governance.pause.effect}</p>
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 13: Risks */}
+            <ScrollReveal>
+              <section id="section-13" className="content-section border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent">
+                <SectionHeader number="13" title={content.sections.risks.title} color="amber" />
+                <p className="text-amber-200/70 mb-6">{content.sections.risks.disclaimer}</p>
+                <div className="grid gap-3">
+                  {content.sections.risks.items.map((risk, i) => (
+                    <div key={i} className="flex items-start gap-3 text-sm">
+                      <span className="text-amber-400 mt-0.5">⚠</span>
+                      <span>
+                        <span className="text-white font-semibold">{risk.type}：</span>
+                        <span className="text-white/60">{risk.desc}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 14: Roadmap */}
+            <ScrollReveal>
+              <section id="section-14" className="content-section">
+                <SectionHeader number="14" title={content.sections.roadmap.title} />
+                <div className="relative">
+                  <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-rose-500 via-fuchsia-500 to-indigo-500 rounded-full" />
+                  <div className="space-y-6">
+                    {content.sections.roadmap.phases.map((phase, i) => (
+                      <div key={i} className="flex gap-6 pl-1">
+                        <div className="relative z-10 flex-shrink-0 h-12 w-12 rounded-xl bg-gradient-to-br from-rose-500/30 to-fuchsia-500/20 border border-white/10 flex items-center justify-center">
+                          <span className="text-sm font-bold text-white">{i + 1}</span>
+                        </div>
+                        <div className="flex-1 p-5 rounded-xl bg-gradient-to-r from-white/[0.03] to-transparent border border-white/[0.06] hover:border-white/10 transition-colors">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-rose-400 font-mono font-semibold">{phase.phase}</span>
+                            <span className="text-white/30">—</span>
+                            <span className="text-white font-semibold">{phase.name}</span>
+                          </div>
+                          <p className="text-white/60 text-sm">{phase.items}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </ScrollReveal>
+
+            {/* Section 15: Glossary */}
+            <ScrollReveal>
+              <section id="section-15" className="content-section">
+                <SectionHeader number="15" title={content.sections.glossary.title} />
+                <div className="divide-y divide-white/[0.05]">
+                  {content.sections.glossary.terms.map((item, i) => (
+                    <div key={i} className="flex items-start gap-4 py-4">
+                      <span className="font-mono font-bold text-fuchsia-400 min-w-[130px]">{item.term}</span>
+                      <div>
+                        {item.full && <span className="text-white/40 text-sm block">{item.full}</span>}
+                        <span className="text-white/70 text-sm">{item.desc}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </ScrollReveal>
+          </main>
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-20 text-center text-white/30 text-sm">
+          <p>{content.footer}</p>
+        </footer>
       </div>
+
+      <style jsx>{`
+        .content-section {
+          @apply p-6 sm:p-8 rounded-2xl backdrop-blur-sm bg-white/[0.02] border border-white/[0.05];
+        }
+        .subsection-title {
+          @apply text-lg font-semibold text-white/90 mb-4 mt-8 first:mt-0 flex items-center gap-2;
+        }
+        .subsection-title::before {
+          content: '';
+          @apply h-4 w-1 bg-gradient-to-b from-rose-500 to-fuchsia-500 rounded-full;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255,255,255,0.2);
+        }
+      `}</style>
     </div>
   );
 }
 
-
-
-
-
-
-
-
-
-
-
+function SectionHeader({ number, title, color = 'rose' }: { number: string; title: string; color?: string }) {
+  const gradients = {
+    rose: 'from-rose-500 to-fuchsia-500',
+    amber: 'from-amber-500 to-orange-500',
+  };
+  return (
+    <div className="flex items-center gap-4 mb-6">
+      <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${gradients[color as keyof typeof gradients] || gradients.rose} flex items-center justify-center shadow-lg`}>
+        <span className="text-white font-bold font-mono">{number}</span>
+      </div>
+      <h2 className="text-2xl font-display font-bold text-white">{title}</h2>
+    </div>
+  );
+}
