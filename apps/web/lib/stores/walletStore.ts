@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { PublicKey, Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { connection, DRAP_MINT, DRAP_DECIMALS } from "../solana";
+import { connection, TOKEN_MINT, TOKEN_DECIMALS } from "../solana";
 
 interface Asset {
   mint: string;
@@ -173,7 +173,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       // 获取用户的 DRAP 代币账户
       const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
         publicKey,
-        { mint: DRAP_MINT }
+        { mint: TOKEN_MINT }
       );
 
       if (tokenAccounts.value.length > 0) {
