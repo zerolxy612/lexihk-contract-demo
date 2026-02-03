@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { INITIAL_DRAMAS } from '@/app/dramas/page';
 import { SidebarLeft } from '@/app/components/SidebarLeft';
 import { SidebarRight } from '@/app/components/SidebarRight';
@@ -79,25 +80,40 @@ export default function DramaDetailPage() {
 
                                 {/* 3. Episodes */}
                                 <div className="space-y-4">
-                                    <h2 className="text-2xl font-black italic flex items-center gap-2">
-                                        <span className="text-accent">📺</span> Episodes
-                                    </h2>
+                                    <div className="flex items-center justify-between">
+                                        <h2 className="text-2xl font-black italic flex items-center gap-2">
+                                            <span className="text-accent">📺</span> Episodes
+                                        </h2>
+                                        <Link 
+                                            href="/theater/demo"
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500/20 to-fuchsia-500/20 border border-rose-500/30 text-rose-400 text-sm font-medium hover:border-rose-500/50 transition"
+                                        >
+                                            <span>🎬</span> 进入互动剧场
+                                        </Link>
+                                    </div>
                                     <div className="grid md:grid-cols-2 gap-4">
                                         {/* Released Episode */}
-                                        <div className="group relative aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 hover:border-accent/50 transition cursor-pointer">
-                                            <img src={drama.coverImage} className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" />
-                                            <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black via-black/50 to-transparent">
-                                                <div className="flex justify-between items-end">
-                                                    <div>
-                                                        <p className="text-xs uppercase tracking-widest text-accent mb-1">Episode 1 • Aired</p>
-                                                        <h3 className="text-xl font-bold text-white">The Inception</h3>
-                                                    </div>
-                                                    <div className="h-10 w-10 rounded-full bg-white text-black flex items-center justify-center transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                                                        ▶
+                                        <Link href="/theater/demo" className="block">
+                                            <div className="group relative aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 hover:border-accent/50 transition cursor-pointer">
+                                                <img src={drama.coverImage} className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" />
+                                                <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black via-black/50 to-transparent">
+                                                    <div className="flex justify-between items-end">
+                                                        <div>
+                                                            <p className="text-xs uppercase tracking-widest text-accent mb-1">Episode 1 • 可互动</p>
+                                                            <h3 className="text-xl font-bold text-white">开篇：霓虹雨夜</h3>
+                                                            <p className="text-white/50 text-sm mt-1">点击进入分镜剧场体验互动剧情</p>
+                                                        </div>
+                                                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white flex items-center justify-center transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all shadow-[0_10px_30px_rgba(229,9,20,0.5)]">
+                                                            ▶
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                {/* Demo 标签 */}
+                                                <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+                                                    ✓ Demo 可用
+                                                </div>
                                             </div>
-                                        </div>
+                                        </Link>
 
                                         {/* Locked Episode */}
                                         <div className="aspect-video bg-[#15171e] rounded-2xl border border-white/5 flex flex-col items-center justify-center gap-4 relative overflow-hidden">

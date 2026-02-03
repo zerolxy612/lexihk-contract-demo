@@ -93,22 +93,37 @@ export function DramaHero({ drama }: DramaHeroProps) {
 
                 {/* Actions - Explicit CTA */}
                 <div className="flex flex-wrap gap-4 mt-2">
-                    <button className="h-16 px-8 rounded-full bg-accent text-white hover:bg-red-600 transition-all transform hover:-translate-y-1 shadow-[0_10px_30px_rgba(229,9,20,0.4)] flex items-center gap-4 group relative overflow-hidden border border-white/10">
+                    {/* 主要 CTA: 进入分镜剧场 */}
+                    <Link href={`/theater/demo`}>
+                        <button className="h-16 px-8 rounded-full bg-gradient-to-r from-rose-500 to-fuchsia-500 text-white hover:shadow-[0_20px_60px_rgba(229,9,20,0.5)] transition-all transform hover:-translate-y-1 hover:scale-[1.02] flex items-center gap-4 group relative overflow-hidden border border-white/10">
+                            <span className="text-3xl group-hover:scale-125 transition-transform">🎬</span>
+                            <div className="flex flex-col items-start">
+                                <span className="text-xs font-bold text-rose-200 uppercase tracking-wider">Interactive Demo</span>
+                                <span className="text-xl font-black leading-none">进入分镜剧场</span>
+                            </div>
+                            <div className="h-8 w-px bg-white/20" />
+                            <span className="text-lg">→</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                        </button>
+                    </Link>
+
+                    {/* 次要 CTA: 支持项目 */}
+                    <button className="h-16 px-8 rounded-full bg-amber-500 text-black hover:bg-amber-400 transition-all transform hover:-translate-y-1 shadow-[0_10px_30px_rgba(245,158,11,0.3)] flex items-center gap-4 group relative overflow-hidden">
                         <div className="flex flex-col items-start">
-                            <span className="text-xs font-bold text-red-200 uppercase tracking-wider">Invest Now</span>
+                            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Invest Now</span>
                             <span className="text-xl font-black leading-none">Fund Episode 2</span>
                         </div>
-                        <div className="h-8 w-px bg-white/20" />
+                        <div className="h-8 w-px bg-black/20" />
                         <span className="text-2xl group-hover:scale-125 transition-transform">⚡</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                     </button>
 
+                    {/* 故事树 */}
                     <Link href={`/drama/${drama.id}/tree`}>
                         <button className="h-16 px-8 rounded-full bg-white/5 text-white hover:bg-white/10 transition-all transform hover:-translate-y-1 backdrop-blur-md border border-white/10 flex items-center gap-3">
-                            <span className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xs">▶</span>
+                            <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-lg">🌳</span>
                             <div className="flex flex-col items-start">
-                                <span className="text-xs text-white/40 uppercase font-bold">Preview</span>
-                                <span className="font-bold">Watch Trailer</span>
+                                <span className="text-xs text-white/40 uppercase font-bold">Story Tree</span>
+                                <span className="font-bold">查看故事树</span>
                             </div>
                         </button>
                     </Link>
