@@ -13,8 +13,8 @@ const theaterDramas = [
     id: 'demo',
     title: DEMO_DRAMA.title,
     description: DEMO_DRAMA.description,
-    tags: DEMO_DRAMA.tags,
-    cover: DEMO_DRAMA.coverImage,
+    tags: DEMO_DRAMA.tags ?? [],
+    cover: DEMO_DRAMA.coverImage ?? '',
     stats: { 
       views: `${((DEMO_DRAMA.participantCount ?? 0) / 1000).toFixed(1)}k`, 
       likes: '9.1k', 
