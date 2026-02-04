@@ -16,7 +16,7 @@ const theaterDramas = [
     tags: DEMO_DRAMA.tags,
     cover: DEMO_DRAMA.coverImage,
     stats: { 
-      views: `${(DEMO_DRAMA.participantCount / 1000).toFixed(1)}k`, 
+      views: `${((DEMO_DRAMA.participantCount ?? 0) / 1000).toFixed(1)}k`, 
       likes: '9.1k', 
       duration: '5 分钟 Demo',
       nodes: Object.keys(STORY_NODES).length - 1, // 排除 custom 节点
