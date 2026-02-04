@@ -1,4 +1,4 @@
-export type Language = 'en' | 'zh';
+export type Language = 'en' | 'zh-CN' | 'zh-TW';
 
 export interface DramasContent {
   header: {
@@ -102,7 +102,9 @@ export interface DramasContent {
   empty: string;
 }
 
-const content: Record<Language, DramasContent> = {
+type BaseLanguage = 'en' | 'zh-CN';
+
+const baseContent: Record<BaseLanguage, DramasContent> = {
   en: {
     header: {
       badge: 'Live · AI Drama Launchpad',
@@ -204,7 +206,7 @@ const content: Record<Language, DramasContent> = {
     },
     empty: 'No matching projects found',
   },
-  zh: {
+  'zh-CN': {
     header: {
       badge: 'Live · AI 漫剧发射台',
       title: 'Drama.fun',
@@ -307,7 +309,11 @@ const content: Record<Language, DramasContent> = {
   },
 };
 
+const content: Record<Language, DramasContent> = {
+  ...baseContent,
+  'zh-TW': baseContent['zh-CN'],
+};
+
 export function getDramasContent(language: Language): DramasContent {
   return content[language] || content.en;
 }
-
