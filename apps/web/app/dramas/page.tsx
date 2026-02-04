@@ -11,9 +11,6 @@ import { INITIAL_DRAMAS, Drama, Trade } from '@/app/data/mocks';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { getDramasContent } from '@/lib/i18n/dramas';
 
-// Re-export for other components that import from here
-export { INITIAL_DRAMAS };
-
 type SortType = 'hot' | 'new' | 'marketcap' | 'progress';
 
 // 格式化数字

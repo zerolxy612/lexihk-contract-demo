@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { INITIAL_DRAMAS } from '@/app/dramas/page';
+import { INITIAL_DRAMAS } from '@/app/data/mocks';
 import { SidebarLeft } from '@/app/components/SidebarLeft';
 import { SidebarRight } from '@/app/components/SidebarRight';
 import { ParticleBackground } from '@/app/components/ParticleBackground';
