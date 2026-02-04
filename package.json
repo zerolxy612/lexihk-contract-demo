@@ -10,6 +10,6 @@
     "anchor:deploy": "anchor deploy"
   },
   "engines": {
-    "node": "18.x"
+    "node": ">=20"
   }
 }
